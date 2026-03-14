@@ -31,9 +31,14 @@
 
                 <div class="collapse navbar-collapse" id="mainNavbar">
                     <div class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                        {% if request.user.is_staff %}
+                        <a class="nav-link" href="{% url 'admin_user_list' %}">User Management</a>
+
+                        {% else %}
                         <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
                         <a class="nav-link" href="{% url 'food_list' %}">Foods</a>
                         <a class="nav-link" href="{% url 'record_list' %}">Records</a>
+                        {% endif %}
 
                         <form action="{% url 'account' %}" method="post" class="ms-lg-2 mb-0">
                             {% csrf_token %}

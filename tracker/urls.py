@@ -3,6 +3,7 @@ from django.urls import path
 
 from . import views
 from . import api
+from . import adminview
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -29,4 +30,8 @@ urlpatterns = [
     path("account/profile/", api.update_profile_view, name="account_update_profile"),
     path("account/password/", api.change_password_view, name="account_change_password"),
     path("account/delete/", api.delete_account_view, name="account_delete"),
+
+    path("management/users/", adminview.admin_user_list_view, name="admin_user_list"),
+    path("management/users/<int:user_id>/", adminview.admin_user_detail_view, name="admin_user_detail"),
+    path("management/users/<int:user_id>/delete/", adminview.admin_user_delete_view, name="admin_user_delete"),
 ]

@@ -2,7 +2,7 @@ from datetime import date
 
 from django.contrib import messages
 from django.contrib.auth import login
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
 from django.contrib.auth.forms import PasswordChangeForm
 
@@ -99,3 +99,12 @@ def account_view(request):
         "delete_form": DeleteAccountForm(user=request.user),
     }
     return render(request, "tracker/account.html", context)
+
+
+def staff_required(user):
+    return user.is_authenticated and user.is_staff
+
+@login_required
+@user_passes_test(staff_required)
+def staff_required(user):
+    return user.is_authenticated and user.is_staff

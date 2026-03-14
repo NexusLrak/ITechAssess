@@ -2,16 +2,19 @@
 {% block title %}Home | Nutrition Tracker{% endblock %}
 {% block content %}
 
-<div>
-    {% if user.is_authenticated %}
-    <script>
-        window.location.href = "{% url 'dashboard' %}";
-    </script>
-    {% else %}
-    <script>
-        window.location.href = "{% url 'userlogin' %}";
-    </script>
-    {% endif %}
-</div>
-
+{% if request.user.is_authenticated %}
+{% if request.user.is_staff %}
+<script>
+    window.location.href = "{% url 'admin_user_list' %}";
+</script>
+{% else %}
+<script>
+    window.location.href = "{% url 'dashboard' %}";
+</script>
+{% endif %}
+{% else %}
+<script>
+    window.location.href = "{% url 'userlogin' %}";
+</script>
+{% endif %}
 {% endblock %}
