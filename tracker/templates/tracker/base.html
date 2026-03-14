@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Nutrition Tracker{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'tracker/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'tracker/css/common.css' %}">
+    {% block extra_css %}{% endblock %}
+
+    <script defer src="{% static 'tracker/js/bootstrap.bundle.min.js' %}"></script>
+    <script defer src="{% static 'tracker/js/app.js' %}"></script>
+</head>
+
+<body>
+
+    <header class="site-header fixed-top">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+            <div class="container-fluid px-3 px-lg-4">
+                <a class="navbar-brand fw-bold" href="{% url 'home' %}">
+                    Nutrition Tracker
+                </a>
+
+                {% if user.is_authenticated %}
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <div class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                        <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+                        <a class="nav-link" href="{% url 'food_list' %}">Foods</a>
+                        <a class="nav-link" href="{% url 'record_list' %}">Records</a>
+
+                        <form action="{% url 'logout' %}" method="post" class="ms-lg-2 mb-0">
+                            {% csrf_token %}
+                            <button class="btn p-0 border-0 bg-transparent" type="submit" title="退出登录">
+                                <span class="avatar-circle">
+                                    {{ request.user.username|default:'U'|first|upper }}
+                                </span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main class="page-content">
+        <div class="{% block main_container_class %}container py-4{% endblock %}">
+            {% if messages %}
+            <div class="mb-3">
+                {% for message in messages %}
+                <div class="alert 
+                        {% if message.tags == 'success' %}alert-success
+                        {% elif message.tags == 'error' %}alert-danger
+                        {% elif message.tags == 'warning' %}alert-warning
+                        {% else %}alert-info
+                        {% endif %}
+                        alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <div class="modal fade" id="modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body" id="modal-body"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer fixed-bottom bg-dark text-light">
+        <div class="container text-center small py-2">
+            Nutrition Tracker
+        </div>
+    </footer>
+
+</body>
+
+</html>
