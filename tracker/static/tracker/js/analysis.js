@@ -7,6 +7,22 @@ let pieView = null;
 let selectedRange = null;
 let selectedDate = null;
 
+function isDarkMode() {
+    return localStorage.getItem("theme") === "dark";
+}
+
+function getTextColor() {
+    return isDarkMode() ? "#e6f1ec" : "#34495e";
+}
+
+function getGridColor() {
+    return isDarkMode() ? "#3c4744" : "#e9ecef";
+}
+
+function getBgColor() {
+    return isDarkMode() ? "#1f2624" : "#ffffff";
+}
+
 function getChartSizes() {
     const pieEl = document.getElementById("pieChart");
     const barEl = document.getElementById("barChart");
@@ -25,15 +41,15 @@ function getChartSizes() {
 function buildPieSpec(filteredData, size) {
     return {
         $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-        background: "white",
+        background: getBgColor(),
         width: size.pieWidth,
         height: size.pieHeight,
-        data: { values: filteredData || [] },
+        data: {values: filteredData || []},
 
         transform: [
             {
                 aggregate: [
-                    { op: "sum", field: "kcal", as: "value" }
+                    {op: "sum", field: "kcal", as: "value"}
                 ],
                 groupby: ["macro"]
             },
@@ -76,8 +92,8 @@ function buildPieSpec(filteredData, size) {
                         sort: ["Protein", "Carbs", "Fat", "Fibre"]
                     },
                     tooltip: [
-                        { field: "macro", type: "nominal", title: "Macro" },
-                        { field: "value", type: "quantitative", title: "kcal", format: ".0f" }
+                        {field: "macro", type: "nominal", title: "Macro"},
+                        {field: "value", type: "quantitative", title: "kcal", format: ".0f"}
                     ]
                 }
             },
@@ -91,7 +107,7 @@ function buildPieSpec(filteredData, size) {
                     fontWeight: "bold",
                     stroke: "gray",
                     strokeWidth: 0.1,
-                    fill: "black"
+                    fill: getTextColor()
                 },
                 encoding: {
                     theta: {
@@ -113,11 +129,11 @@ function buildPieSpec(filteredData, size) {
 
             // 3. center total
             {
-                data: { values: filteredData || [] },
+                data: {values: filteredData || []},
                 transform: [
                     {
                         aggregate: [
-                            { op: "sum", field: "kcal", as: "totalKcal" }
+                            {op: "sum", field: "kcal", as: "totalKcal"}
                         ]
                     }
                 ],
@@ -127,7 +143,8 @@ function buildPieSpec(filteredData, size) {
                     baseline: "middle",
                     dy: -10,
                     fontSize: 24,
-                    fontWeight: "bold"
+                    fontWeight: "bold",
+                    fill: getTextColor()
                 },
                 encoding: {
                     text: {
@@ -140,23 +157,25 @@ function buildPieSpec(filteredData, size) {
 
             // 4. center unit
             {
-                data: { values: [{}] },
+                data: {values: [{}]},
                 mark: {
                     type: "text",
                     align: "center",
                     baseline: "middle",
                     dy: 14,
-                    fontSize: 12
+                    fontSize: 12,
+                    fill: getTextColor()
                 },
                 encoding: {
-                    text: { value: "kcal" }
+                    text: {value: "kcal"}
                 }
             }
         ],
 
-        view: { stroke: null }
+        view: {stroke: null}
     };
 }
+
 function buildBarSpec(barData, size) {
     const end = new Date();
     end.setHours(0, 0, 0, 0);
@@ -173,10 +192,10 @@ function buildBarSpec(barData, size) {
 
     return {
         $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-        background: "white",
+        background: getBgColor(),
         width: size.barWidth,
         height: size.barHeight,
-        data: { values: barData || [] },
+        data: {values: barData || []},
         params: [
             {
                 name: "dateBrush",
@@ -199,14 +218,26 @@ function buildBarSpec(barData, size) {
                 axis: {
                     format: "%m-%d",
                     labelAngle: -30,
-                    values: axisValues
+                    values: axisValues,
+                    labelColor: getTextColor(),
+                    titleColor: getTextColor(),
+                    gridColor: getGridColor(),
+                    domainColor: getGridColor(),
+                    tickColor: getGridColor()
                 }
             },
             y: {
                 field: "kcal",
                 type: "quantitative",
                 stack: "zero",
-                title: "Calories (kcal)"
+                title: "Calories (kcal)",
+                axis: {
+                    labelColor: getTextColor(),
+                    titleColor: getTextColor(),
+                    gridColor: getGridColor(),
+                    domainColor: getGridColor(),
+                    tickColor: getGridColor()
+                }
             },
             color: {
                 field: "macro",
@@ -223,17 +254,17 @@ function buildBarSpec(barData, size) {
                 }
             },
             opacity: {
-                condition: { param: "dateBrush", value: 1 },
+                condition: {param: "dateBrush", value: 1},
                 value: 0.35
             },
             tooltip: [
-                { field: "date", type: "temporal", title: "Date" },
-                { field: "macro", type: "nominal", title: "Macro" },
-                { field: "kcal", type: "quantitative", title: "Macro kcal" },
-                { field: "dailyCalories", type: "quantitative", title: "Daily total kcal" }
+                {field: "date", type: "temporal", title: "Date"},
+                {field: "macro", type: "nominal", title: "Macro"},
+                {field: "kcal", type: "quantitative", title: "Macro kcal"},
+                {field: "dailyCalories", type: "quantitative", title: "Daily total kcal"}
             ]
         },
-        view: { stroke: null }
+        view: {stroke: null}
     };
 }
 
@@ -314,7 +345,7 @@ async function renderPieChart() {
     const result = await vegaEmbed(
         "#pie-chart",
         buildPieSpec(filteredData, size),
-        { actions: false }
+        {actions: false}
     );
 
     pieView = result.view;
@@ -396,7 +427,7 @@ async function restoreBarBrush() {
     if (!brushSignalName) return;
 
     try {
-        await barView.signal(brushSignalName, { date: selectedRange }).runAsync();
+        await barView.signal(brushSignalName, {date: selectedRange}).runAsync();
     } catch (err) {
         console.warn("Failed to restore brush:", err);
     }
@@ -415,7 +446,7 @@ async function renderBarChart() {
     const result = await vegaEmbed(
         "#bar-chart",
         buildBarSpec(cachedData.barData, size),
-        { actions: false }
+        {actions: false}
     );
 
     barView = result.view;
@@ -470,3 +501,9 @@ if (chartsEl) {
     });
     resizeObserver.observe(chartsEl);
 }
+
+window.addEventListener("message", (event) => {
+    if (event.data === "themeChanged") {
+        renderCharts();
+    }
+});
