@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('register/', api.user_register, name='userregister'),
     path('login/', api.user_login, name='userlogin'),
+    path("account/", views.account_view, name="account"),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
     path('dashboard/', views.dashboard, name='dashboard'),
@@ -24,4 +25,8 @@ urlpatterns = [
 
     path("analysis/", views.analysis_page, name='analysis_page'),
     path("api/analysis/", api.analysis, name='analysis'),
+
+    path("account/profile/", api.update_profile_view, name="account_update_profile"),
+    path("account/password/", api.change_password_view, name="account_change_password"),
+    path("account/delete/", api.delete_account_view, name="account_delete"),
 ]

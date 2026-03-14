@@ -1,19 +1,19 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth import authenticate, login, get_user_model, logout, update_session_auth_hash
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, F, FloatField, ExpressionWrapper
 from django.http import JsonResponse, HttpResponse
+from django.contrib.auth.forms import PasswordChangeForm
+
 from datetime import date
 
 from django.urls import reverse
 
-from .forms import FoodForm, MealRecordForm, RegisterForm
-from .models import Food, MealRecord
-
-
+from .forms import *
+from .models import *
 
 User = get_user_model()
 
@@ -295,4 +295,94 @@ def record_delete(request, pk):
             'type_name': 'record',
             'form_action': reverse('record_delete', args=[record.pk])
         }
+    )
+
+
+
+@login_required
+def update_profile_view(request):
+    if request.method != "POST":
+        return redirect("account")
+
+    profile_form = ProfileUpdateForm(request.POST, instance=request.user)
+    password_form = CustomPasswordChangeForm(user=request.user)
+    delete_form = DeleteAccountForm(user=request.user)
+
+    if profile_form.is_valid():
+        profile_form.save()
+        messages.success(request, "Profile updated successfully.")
+        return redirect("account")
+
+    messages.error(request, "Please correct the profile form errors.")
+    return render(
+        request,
+        "tracker/account.html",
+        {
+            "profile_form": profile_form,
+            "password_form": password_form,
+            "delete_form": delete_form,
+        },
+    )
+
+
+@login_required
+def change_password_view(request):
+    if request.method != "POST":
+        return redirect("account")
+
+    profile_form = ProfileUpdateForm(instance=request.user)
+    password_form = CustomPasswordChangeForm(user=request.user, data=request.POST)
+    delete_form = DeleteAccountForm(user=request.user)
+
+    if password_form.is_valid():
+        user = password_form.save()
+        update_session_auth_hash(request, user)
+        messages.success(request, "Password updated successfully.")
+        return redirect("account")
+
+    messages.error(request, "Please correct the password form errors.")
+    return render(
+        request,
+        "tracker/account.html",
+        {
+            "profile_form": profile_form,
+            "password_form": password_form,
+            "delete_form": delete_form,
+        },
+    )
+
+
+@login_required
+def logout_view(request):
+    if request.method == "POST":
+        logout(request)
+        messages.success(request, "You have been logged out.")
+        return redirect("home")
+    return redirect("account")
+
+
+@login_required
+def delete_account_view(request):
+    if request.method != "POST":
+        return redirect("account")
+
+    profile_form = ProfileUpdateForm(instance=request.user)
+    password_form = CustomPasswordChangeForm(user=request.user)
+    delete_form = DeleteAccountForm(request.user, request.POST)
+
+    if delete_form.is_valid():
+        user = request.user
+        logout(request)
+        user.delete()
+        return redirect("home")
+
+    messages.error(request, "Account deletion failed.")
+    return render(
+        request,
+        "tracker/account.html",
+        {
+            "profile_form": profile_form,
+            "password_form": password_form,
+            "delete_form": delete_form,
+        },
     )

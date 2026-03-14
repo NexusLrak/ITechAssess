@@ -4,9 +4,7 @@ let renderTimer = null;
 let barView = null;
 let pieView = null;
 
-// 区间刷选
 let selectedRange = null;
-// 单日点击
 let selectedDate = null;
 
 function getChartSizes() {
@@ -32,7 +30,6 @@ function buildPieSpec(filteredData, size) {
         height: size.pieHeight,
         data: { values: filteredData || [] },
 
-        // 所有扇区相关层共用同一份聚合数据
         transform: [
             {
                 aggregate: [
@@ -279,7 +276,6 @@ function extractRangeFromBrushSignal(value) {
 function filterData(data) {
     if (!Array.isArray(data)) return [];
 
-    // 单日点击优先
     if (selectedDate) {
         const selectedDayMs = normalizeDateOnly(selectedDate);
         if (selectedDayMs === null) return data;
@@ -290,7 +286,6 @@ function filterData(data) {
         });
     }
 
-    // 其次按刷选区间
     const normalizedRange = normalizeBrushRange(selectedRange);
     if (normalizedRange) {
         const [startMs, endMs] = normalizedRange;
@@ -363,7 +358,6 @@ async function bindBarInteractions() {
             const range = extractRangeFromBrushSignal(value);
             selectedRange = range;
 
-            // 区间选择生效时，清掉单日点击
             if (range) {
                 selectedDate = null;
             }
@@ -377,7 +371,6 @@ async function bindBarInteractions() {
     barView.addEventListener("click", async (event, item) => {
         const datum = item && item.datum;
 
-        // 点到柱子时，切换到单日模式
         if (datum && datum.date) {
             selectedDate = datum.date;
             selectedRange = null;
@@ -385,12 +378,10 @@ async function bindBarInteractions() {
             return;
         }
 
-        // 点空白时，仅清掉单日选择
         selectedDate = null;
         await renderPieChart();
     });
 
-    // 双击清空全部筛选
     barView.addEventListener("dblclick", async () => {
         selectedDate = null;
         selectedRange = null;

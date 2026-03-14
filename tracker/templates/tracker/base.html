@@ -35,9 +35,9 @@
                         <a class="nav-link" href="{% url 'food_list' %}">Foods</a>
                         <a class="nav-link" href="{% url 'record_list' %}">Records</a>
 
-                        <form action="{% url 'logout' %}" method="post" class="ms-lg-2 mb-0">
+                        <form action="{% url 'account' %}" method="post" class="ms-lg-2 mb-0">
                             {% csrf_token %}
-                            <button class="btn p-0 border-0 bg-transparent" type="submit" title="退出登录">
+                            <button class="btn p-0 border-0 bg-transparent" type="submit" title="Logout">
                                 <span class="avatar-circle">
                                     {{ request.user.username|default:'U'|first|upper }}
                                 </span>

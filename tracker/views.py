@@ -3,11 +3,11 @@ from datetime import date
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
+from django.contrib.auth.forms import PasswordChangeForm
 
-
-from .forms import FoodForm, MealRecordForm, RegisterForm
-from .models import Food, MealRecord
+from .forms import *
+from .models import *
 from django.views.decorators.clickjacking import xframe_options_exempt
 
 
@@ -89,3 +89,13 @@ def record_list(request):
 @xframe_options_exempt
 def analysis_page(request):
     return render(request, 'tracker/analysis.html')
+
+
+@login_required
+def account_view(request):
+    context = {
+        "profile_form": ProfileUpdateForm(instance=request.user),
+        "password_form": CustomPasswordChangeForm(user=request.user),
+        "delete_form": DeleteAccountForm(user=request.user),
+    }
+    return render(request, "tracker/account.html", context)
