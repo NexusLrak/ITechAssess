@@ -4,3 +4,4 @@ nutrition_tracker_full/__pycache__/
 8.pyo
 .env
 .vnev/
+tracker/migrations/
