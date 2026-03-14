@@ -17,14 +17,14 @@
 
 <body>
 
-    <header class="site-header fixed-top">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-            <div class="container-fluid px-3 px-lg-4">
-                <a class="navbar-brand fw-bold" href="{% url 'home' %}">
-                    Nutrition Tracker
-                </a>
+<header class="site-header fixed-top">
+    <nav class="navbar navbar-expand-lg shadow-sm site-navbar">
+        <div class="container-fluid px-3 px-lg-4">
+            <a class="navbar-brand fw-bold" href="{% url 'home' %}">
+                Nutrition Tracker
+            </a>
 
-                {% if user.is_authenticated %}
+            {% if user.is_authenticated %}
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -32,12 +32,12 @@
                 <div class="collapse navbar-collapse" id="mainNavbar">
                     <div class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
                         {% if request.user.is_staff %}
-                        <a class="nav-link" href="{% url 'admin_user_list' %}">User Management</a>
+                            <a class="nav-link" href="{% url 'admin_user_list' %}">User Management</a>
 
                         {% else %}
-                        <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
-                        <a class="nav-link" href="{% url 'food_list' %}">Foods</a>
-                        <a class="nav-link" href="{% url 'record_list' %}">Records</a>
+                            <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+                            <a class="nav-link" href="{% url 'food_list' %}">Foods</a>
+                            <a class="nav-link" href="{% url 'record_list' %}">Records</a>
                         {% endif %}
 
                         <form action="{% url 'account' %}" method="post" class="ms-lg-2 mb-0">
@@ -50,48 +50,51 @@
                         </form>
                     </div>
                 </div>
-                {% endif %}
-            </div>
-        </nav>
-    </header>
+            {% endif %}
+        </div>
+    </nav>
+</header>
 
-    <main class="page-content">
-        <div class="{% block main_container_class %}container py-4{% endblock %}">
-            {% if messages %}
+<main class="page-content">
+    <div class="{% block main_container_class %}container py-4{% endblock %}">
+        {% if messages %}
             <div class="mb-3">
                 {% for message in messages %}
-                <div class="alert 
+                    <div class="alert
                         {% if message.tags == 'success' %}alert-success
                         {% elif message.tags == 'error' %}alert-danger
                         {% elif message.tags == 'warning' %}alert-warning
                         {% else %}alert-info
                         {% endif %}
                         alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
                 {% endfor %}
             </div>
-            {% endif %}
+        {% endif %}
 
-            {% block content %}{% endblock %}
-        </div>
-    </main>
+        {% block content %}{% endblock %}
+    </div>
+</main>
 
-    <div class="modal fade" id="modal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-body" id="modal-body"></div>
-            </div>
+<div class="modal fade" id="modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-body" id="modal-body"></div>
         </div>
     </div>
+</div>
 
-    <footer class="site-footer fixed-bottom bg-dark text-light">
-        <div class="container text-center small py-2">
-            Nutrition Tracker
-        </div>
-    </footer>
+<footer class="site-footer fixed-bottom">
+    <div class="container text-center small py-2">
+        Nutrition Tracker
+    </div>
+</footer>
 
+<button id="themeToggle" class="theme-toggle" title="Toggle theme">
+    🌙
+</button>
 </body>
 
 </html>
