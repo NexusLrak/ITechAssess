@@ -71,9 +71,12 @@ body,
 /* layout */
 
 .page-content {
+    /*padding-top: calc(var(--header-height) + 1rem);*/
+    /*padding-bottom: calc(var(--footer-height) + 1rem);*/
+    /*height: calc(96vh - var(--header-height) - var(--footer-height));*/
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
     padding-top: calc(var(--header-height) + 1rem);
     padding-bottom: calc(var(--footer-height) + 1rem);
-    height: calc(96vh - var(--header-height) - var(--footer-height));
 }
 
 .site-header .navbar {
@@ -153,9 +156,9 @@ body,
 
 }
 
-.list-group-item:last-child {
-    border-bottom: none;
-}
+/*.list-group-item:last-child {*/
+/*    border-bottom: none;*/
+/*}*/
 
 .list-group-item .text-muted {
     color: var(--text-muted) !important;
@@ -291,6 +294,7 @@ iframe {
     min-height: 420px;
     background: var(--card-bg);
 }
+
 
 /* floating theme button */
 
