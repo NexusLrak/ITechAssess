@@ -27,23 +27,32 @@ function getChartSizes() {
     const pieEl = document.getElementById("pieChart");
     const barEl = document.getElementById("barChart");
 
-    const pieContainerWidth = pieEl ? pieEl.clientWidth : 420;
-    const barContainerWidth = barEl ? barEl.clientWidth : 760;
+    const pieWidth = pieEl ? pieEl.clientWidth : 400;
+    const pieHeight = pieEl ? pieEl.clientHeight : 320;
+
+    const barWidth = barEl ? barEl.clientWidth : 700;
+    const barHeight = barEl ? barEl.clientHeight : 340;
 
     return {
-        pieWidth: Math.min(420, pieContainerWidth - 16),
-        pieHeight: 320,
-        barWidth: Math.min(760, barContainerWidth - 16),
-        barHeight: 340
+        pieWidth,
+        pieHeight,
+        barWidth,
+        barHeight
     };
 }
 
 function buildPieSpec(filteredData, size) {
+    const radius = 120;
     return {
         $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        autosize: {
+            type: "fit",
+            contains: "padding"
+        },
+
         background: getBgColor(),
-        width: size.pieWidth,
-        height: size.pieHeight,
+        width: "container",
+        height: 320,
         data: {values: filteredData || []},
 
         transform: [
@@ -64,8 +73,8 @@ function buildPieSpec(filteredData, size) {
             {
                 mark: {
                     type: "arc",
-                    innerRadius: 40,
-                    outerRadius: 140
+                    innerRadius: radius * 0.35,
+                    outerRadius: radius
                 },
                 encoding: {
                     theta: {
@@ -76,20 +85,22 @@ function buildPieSpec(filteredData, size) {
                         field: "macro",
                         type: "nominal",
                         scale: {
-                            domain: ["Protein", "Carbs", "Fat", "Fibre"],
-                            range: ["#FE0000", "#00AACE", "#EEFF44", "#00CE00"]
+                            domain: ["Protein", "Carbs", "Fat"],
+                            range: ["#d16b6b", "#6fa8dc", "#e5c07b"]
                         },
                         legend: {
                             title: "",
                             symbolSize: 400,
                             rowPadding: 8,
-                            labelFontWeight: "bold"
+                            labelFontWeight: "bold",
+                            labelColor: getTextColor(),
+                            titleColor: getTextColor()
                         }
                     },
                     order: {
                         field: "macro",
                         type: "nominal",
-                        sort: ["Protein", "Carbs", "Fat", "Fibre"]
+                        sort: ["Protein", "Carbs", "Fat"]
                     },
                     tooltip: [
                         {field: "macro", type: "nominal", title: "Macro"},
@@ -118,7 +129,7 @@ function buildPieSpec(filteredData, size) {
                     order: {
                         field: "macro",
                         type: "nominal",
-                        sort: ["Protein", "Carbs", "Fat", "Fibre"]
+                        sort: ["Protein", "Carbs", "Fat"]
                     },
                     text: {
                         field: "labels",
@@ -192,9 +203,13 @@ function buildBarSpec(barData, size) {
 
     return {
         $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        autosize: {
+            type: "fit",
+            contains: "padding"
+        },
         background: getBgColor(),
-        width: size.barWidth,
-        height: size.barHeight,
+        width: "container",
+        height: 340,
         data: {values: barData || []},
         params: [
             {
@@ -243,14 +258,16 @@ function buildBarSpec(barData, size) {
                 field: "macro",
                 type: "nominal",
                 scale: {
-                    domain: ["Protein", "Carbs", "Fat", "Fibre"],
-                    range: ["#FE0000", "#00AACE", "#EEFF44", "#00CE00"]
+                    domain: ["Protein", "Carbs", "Fat"],
+                    range: ["#d16b6b", "#6fa8dc", "#e5c07b"]
                 },
                 legend: {
                     title: "",
                     symbolSize: 400,
                     rowPadding: 8,
-                    labelFontWeight: "bold"
+                    labelFontWeight: "bold",
+                    labelColor: getTextColor(),
+                    titleColor: getTextColor()
                 }
             },
             opacity: {
@@ -344,8 +361,10 @@ async function renderPieChart() {
 
     const result = await vegaEmbed(
         "#pie-chart",
-        buildPieSpec(filteredData, size),
-        {actions: false}
+        buildPieSpec(filteredData, size), {
+            actions: false,
+            renderer: "svg"
+        }
     );
 
     pieView = result.view;
@@ -445,8 +464,10 @@ async function renderBarChart() {
 
     const result = await vegaEmbed(
         "#bar-chart",
-        buildBarSpec(cachedData.barData, size),
-        {actions: false}
+        buildBarSpec(cachedData.barData, size), {
+            actions: false,
+            renderer: "svg"
+        }
     );
 
     barView = result.view;
