@@ -34,10 +34,11 @@
         body {
             margin: 0;
             width: 100%;
-            height: 100%;
+            height: auto;
+            min-height: 100%;
             background: var(--bg-color);
             color: var(--text-color);
-            overflow: hidden;
+            overflow-y: auto;
             font-family: Arial, sans-serif;
         }
 
@@ -47,10 +48,10 @@
 
         #charts {
             display: grid;
-            grid-template-rows: 0.75fr 1.00fr;
+            grid-template-rows: minmax(320px, auto) minmax(380px, auto);
             gap: 12px;
             width: 100%;
-            height: 100%;
+            min-height: 720px;
         }
 
         .chart-card {
@@ -60,12 +61,12 @@
             padding: 8px;
             overflow: hidden;
             min-width: 0;
-            min-height: 0;
+            min-height: 300px;
         }
 
         .chart {
             width: 100%;
-            height: 100%;
+            height: auto;
         }
 
         @media (max-width: 768px) {
@@ -98,7 +99,9 @@
         <div id="pie-chart" class="chart"></div>
     </div>
     <div class="chart-card">
-        <div id="bar-chart" class="chart"></div>
+{#        <div style="overflow-x: auto;">#}
+            <div id="bar-chart" class="chart"></div>
+{#        </div>#}
     </div>
 </div>
 
