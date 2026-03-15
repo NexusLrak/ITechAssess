@@ -141,12 +141,12 @@ def analysis(request):
                 "kcal": round(row["fat_kcal"] or 0, 2),
                 "dailyCalories": total_calories,
             },
-            {
-                "date": day,
-                "macro": "Fibre",
-                "kcal": round(row["fibre_kcal"] or 0, 2),
-                "dailyCalories": total_calories,
-            },
+            # {
+            #     "date": day,
+            #     "macro": "Fibre",
+            #     "kcal": round(row["fibre_kcal"] or 0, 2),
+            #     "dailyCalories": total_calories,
+            # },
         ])
 
     return JsonResponse({
