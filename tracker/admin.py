@@ -11,6 +11,6 @@ class FoodAdmin(admin.ModelAdmin):
 
 @admin.register(MealRecord)
 class MealRecordAdmin(admin.ModelAdmin):
-    list_display = ('user', 'food', 'meal_type', 'quantity', 'record_date', 'created_at')
+    list_display = ('user', 'food_name', 'meal_type', 'quantity', 'record_date', 'created_at')
     search_fields = ('user__username', 'food__name', 'notes')
     list_filter = ('meal_type', 'record_date')

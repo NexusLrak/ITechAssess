@@ -21,6 +21,7 @@ urlpatterns = [
 
     path('records/', views.record_list, name='record_list'),
     path('records/add/', api.record_create, name='record_create'),
+    path('records/<str:record_date>/', views.record_day_detail, name='record_day_detail'),
     path('records/<int:pk>/edit/', api.record_edit, name='record_edit'),
     path('records/<int:pk>/delete/', api.record_delete, name='record_delete'),
 

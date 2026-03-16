@@ -1,0 +1,111 @@
+{% extends 'tracker/base.html' %}
+{% block title %}Record Details{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column gap-3">
+
+    <section class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+        <div>
+            <h1 class="h3 mb-0">Records for {{ record_date }}</h1>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'record_list' %}" class="btn btn-outline-secondary btn-sm">Back</a>
+            <button class="btn btn-primary btn-sm" type="button" onclick="openModal('{% url 'record_create' %}')">Add Record</button>
+        </div>
+    </section>
+
+    <section>
+        <div class="row g-2">
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body py-2">
+                        <div class="text-muted small">Records</div>
+                        <div class="fs-5 fw-semibold">{{ totals.count }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body py-2">
+                        <div class="text-muted small">Calories</div>
+                        <div class="fs-5 fw-semibold">{{ totals.calories }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body py-2">
+                        <div class="text-muted small">Protein</div>
+                        <div class="fs-5 fw-semibold">{{ totals.protein }} g</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body py-2">
+                        <div class="text-muted small">Fat</div>
+                        <div class="fs-5 fw-semibold">{{ totals.fat }} g</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body py-2">
+                        <div class="text-muted small">Carbs</div>
+                        <div class="fs-5 fw-semibold">{{ totals.carbohydrates }} g</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body py-2">
+                        <div class="text-muted small">Fiber</div>
+                        <div class="fs-5 fw-semibold">{{ totals.fiber }} g</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                {% if records %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Meal</th>
+                                <th>Food</th>
+                                <th>Quantity</th>
+                                <th>Calories</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in records %}
+                            <tr>
+                                <td>{{ record.get_meal_type_display }}</td>
+                                <td>{{ record.food_name }}</td>
+                                <td>{{ record.quantity }}</td>
+                                <td>{{ record.total_calories }}</td>
+                                <td class="text-end">
+                                    <button class="btn btn-primary btn-sm" type="button"
+                                            onclick="openModal('{% url 'record_edit' record.pk %}')">Edit</button>
+                                    <button class="btn btn-danger btn-sm" type="button"
+                                            onclick="openModal('{% url 'record_delete' record.pk %}')">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                    <p class="text-muted mb-0">No records for this date.</p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

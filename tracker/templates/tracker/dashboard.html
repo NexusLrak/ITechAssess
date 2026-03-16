@@ -32,7 +32,7 @@
                     <div class="col-6 col-md-4 col-xxl">
                         <div class="card shadow-sm border-0 h-100">
                             <div class="card-body py-2">
-                                <div class="text-muted small">Foods</div>
+                                <div class="text-muted small">Records</div>
                                 <div class="fs-5 fw-semibold">{{ food_count }}</div>
                             </div>
                         </div>
@@ -156,9 +156,9 @@
                                 {% for record in recent_records|slice:":6" %}
                                     <li class="list-group-item py-1">
                                         <div class="small text-muted">{{ record.record_date }}</div>
-                                        <div>{{ record.food.name }}</div>
+                                        <div>{{ record.food_name }}</div>
                                         <div class="small text-muted">{{ record.quantity }}
-                                            × {{ record.food.unit }}</div>
+                                            × {{ record.food_unit }}</div>
                                     </li>
                                 {% endfor %}
                             </ul>

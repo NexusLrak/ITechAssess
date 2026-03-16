@@ -98,23 +98,23 @@ def analysis(request):
     )
 
     calories_expr = ExpressionWrapper(
-        F('food__calories') * F('quantity'),
+        F('food_calories') * F('quantity'),
         output_field=FloatField()
     )
     protein_g_expr = ExpressionWrapper(
-        F('food__protein') * F('quantity'),
+        F('food_protein') * F('quantity'),
         output_field=FloatField()
     )
     carbs_g_expr = ExpressionWrapper(
-        F('food__carbohydrates') * F('quantity'),
+        F('food_carbohydrates') * F('quantity'),
         output_field=FloatField()
     )
     fat_g_expr = ExpressionWrapper(
-        F('food__fat') * F('quantity'),
+        F('food_fat') * F('quantity'),
         output_field=FloatField()
     )
     fibre_g_expr = ExpressionWrapper(
-        F('food__fiber') * F('quantity'),
+        F('food_fiber') * F('quantity'),
         output_field=FloatField()
     )
 
@@ -155,12 +155,6 @@ def analysis(request):
                 "kcal": round(row["fat_kcal"] or 0, 2),
                 "dailyCalories": total_calories,
             },
-            # {
-            #     "date": day,
-            #     "macro": "Fibre",
-            #     "kcal": round(row["fibre_kcal"] or 0, 2),
-            #     "dailyCalories": total_calories,
-            # },
         ])
 
     return JsonResponse({
@@ -263,6 +257,32 @@ def record_create(request):
             'form_action': reverse('record_create')
         }
     )
+
+
+@login_required
+def record_create_test(request):
+    if request.method == 'POST':
+        form = MealEntryForm(request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Meal record added successfully.')
+            return HttpResponse(status=204)
+    else:
+        form = MealEntryForm(
+            user=request.user,
+            initial={'record_date': date.today()}
+        )
+
+    return render(
+        request,
+        'tracker/record_form.html',
+        {
+            'form': form,
+            'title': 'Add Record',
+            'form_action': reverse('record_test'),
+        }
+    )
+
 
 @login_required
 def record_edit(request, pk):

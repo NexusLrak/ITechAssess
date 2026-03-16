@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm
 from django.contrib.auth import get_user_model
 
-from .models import Food, MealRecord
+from .models import *
 
 User = get_user_model()
 
@@ -39,22 +39,19 @@ class FoodForm(BootstrapFormMixin, forms.ModelForm):
             for field in ['calories', 'protein', 'fat', 'carbohydrates', 'fiber']
         }
 
-class MealRecordForm(BootstrapFormMixin, forms.ModelForm):
-    record_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    def clean(self):
+        cleaned_data = super().clean()
+        a = cleaned_data.get('calories')
+        b = cleaned_data.get('protein')
+        c = cleaned_data.get('carbohydrates')
+        d = cleaned_data.get('fat')
 
-    class Meta:
-        model = MealRecord
-        fields = ['food', 'meal_type', 'quantity', 'record_date', 'notes']
-        widgets = {
-            'quantity': forms.NumberInput(attrs={'step': '0.01'}),
-        }
+        if None not in (a, b, c, d):
+            e = 4.0*b + 4.0*c + 9.0*d # calorie = 4 * protein + 4 * carbs + 9 * fat
+            if a != e:
+                raise forms.ValidationError("Calories should be" + str(e) + "kcals")
 
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-        if user is not None:
-            self.fields['food'].queryset = Food.objects.filter(user=user)
-
+        return cleaned_data
 
     
 class StyledFormMixin:
@@ -121,3 +118,47 @@ class DeleteAccountForm(StyledFormMixin, forms.Form):
         if confirm_text != "DELETE":
             raise forms.ValidationError('Please type "DELETE" exactly.')
         return confirm_text
+    
+
+class MealRecordForm(BootstrapFormMixin, forms.ModelForm):
+    food = forms.ModelChoiceField(
+        queryset=Food.objects.none(),
+        label='Food'
+    )
+
+    class Meta:
+        model = MealRecord
+        fields = ['food', 'meal_type', 'quantity', 'record_date', 'notes']
+        widgets = {
+            'quantity': forms.NumberInput(attrs={'step': '0.01'}),
+            'record_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+        if self.user is not None:
+            self.fields['food'].queryset = Food.objects.filter(user=self.user)
+
+    def save(self, commit=True):
+        if self.user is None:
+            raise ValueError('MealRecordForm.save() requires user')
+
+        food = self.cleaned_data['food']
+
+        instance = super().save(commit=False)
+        instance.user = self.user
+
+        instance.food_name = food.name
+        instance.food_unit = food.unit
+        instance.food_calories = food.calories
+        instance.food_protein = food.protein
+        instance.food_fat = food.fat
+        instance.food_carbohydrates = food.carbohydrates
+        instance.food_fiber = food.fiber
+
+        if commit:
+            instance.save()
+
+        return instance

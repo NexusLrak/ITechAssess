@@ -20,7 +20,6 @@ class Food(models.Model):
     def __str__(self):
         return self.name
 
-
 class MealRecord(models.Model):
     MEAL_CHOICES = [
         ('breakfast', 'Breakfast'),
@@ -29,36 +28,50 @@ class MealRecord(models.Model):
         ('snack', 'Snack'),
     ]
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='meal_records')
-    food = models.ForeignKey(Food, on_delete=models.CASCADE, related_name='records')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='meal_records'
+    )
+
     meal_type = models.CharField(max_length=20, choices=MEAL_CHOICES, default='breakfast')
     quantity = models.FloatField(help_text='Multiplier based on the food unit, e.g. 1 serving or 1 x 100g')
     record_date = models.DateField()
     notes = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # snapshot fields
+    food_name = models.CharField(max_length=255)
+    food_unit = models.CharField(max_length=50)
+
+    food_calories = models.FloatField()
+    food_protein = models.FloatField()
+    food_fat = models.FloatField()
+    food_carbohydrates = models.FloatField()
+    food_fiber = models.FloatField()
+
     class Meta:
         ordering = ['-record_date', 'meal_type', '-created_at']
 
     def __str__(self):
-        return f'{self.user.username} - {self.food.name} - {self.record_date}'
+        return f'{self.user.username} - {self.food_name} - {self.record_date}'
 
     @property
     def total_calories(self):
-        return round(self.food.calories * self.quantity, 2)
+        return round(self.food_calories * self.quantity, 2)
 
     @property
     def total_protein(self):
-        return round(self.food.protein * self.quantity, 2)
+        return round(self.food_protein * self.quantity, 2)
 
     @property
     def total_fat(self):
-        return round(self.food.fat * self.quantity, 2)
+        return round(self.food_fat * self.quantity, 2)
 
     @property
     def total_carbohydrates(self):
-        return round(self.food.carbohydrates * self.quantity, 2)
+        return round(self.food_carbohydrates * self.quantity, 2)
 
     @property
     def total_fiber(self):
-        return round(self.food.fiber * self.quantity, 2)
+        return round(self.food_fiber * self.quantity, 2)
