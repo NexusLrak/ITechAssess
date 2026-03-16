@@ -5,6 +5,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
 from django.contrib.auth.forms import PasswordChangeForm
+from django.db.models import Sum, F, FloatField, ExpressionWrapper
 
 from .forms import *
 from .models import *
@@ -36,6 +37,34 @@ def dashboard(request):
     selected_date = request.GET.get('date') or date.today().isoformat()
     records = MealRecord.objects.filter(user=request.user, record_date=selected_date).select_related('food')
 
+    meal_data = (
+        MealRecord.objects
+        .filter(user=request.user, record_date=selected_date)
+        .values("meal_type")
+        .annotate(
+            protein=Sum(ExpressionWrapper(F("food__protein") * F("quantity"), output_field=FloatField())),
+            fat=Sum(ExpressionWrapper(F("food__fat") * F("quantity"), output_field=FloatField())),
+            carbs=Sum(ExpressionWrapper(F("food__carbohydrates") * F("quantity"),output_field=FloatField())),
+            fibre=Sum(ExpressionWrapper(F("food__fiber") * F("quantity"),output_field=FloatField())),
+            calories=Sum(ExpressionWrapper(F("food__calories") * F("quantity"),output_field=FloatField()))
+        )
+    )
+    meal_summary = {
+        "breakfast": {"protein": 0, "fat": 0, "carbs": 0, "fibre": 0, "calories": 0},
+        "lunch": {"protein": 0, "fat": 0, "carbs": 0, "fibre": 0, "calories": 0},
+        "dinner": {"protein": 0, "fat": 0, "carbs": 0, "fibre": 0, "calories": 0},
+        "others": {"protein": 0, "fat": 0, "carbs": 0, "fibre": 0, "calories": 0},
+    }
+    for m in meal_data:
+        meal = m["meal_type"]
+        if meal == "snack":
+            meal = "others"
+        meal_summary[meal]["protein"] = round(m["protein"] or 0, 1)
+        meal_summary[meal]["fat"] = round(m["fat"] or 0, 1)
+        meal_summary[meal]["carbs"] = round(m["carbs"] or 0, 1)
+        meal_summary[meal]["fibre"] = round(m["fibre"] or 0, 1)
+        meal_summary[meal]["calories"] = round(m["calories"] or 0, 0)
+
     totals = {
         'calories': round(sum(r.total_calories for r in records), 2),
         'protein': round(sum(r.total_protein for r in records), 2),
@@ -50,6 +79,7 @@ def dashboard(request):
 
     context = {
         'selected_date': selected_date,
+        "meal_summary": meal_summary,
         'records': records,
         'totals': totals,
         'recent_records': recent_records,
@@ -81,7 +111,7 @@ def record_list(request):
         'totals': totals,
         'record_count': record_count,
     }
-    
+
     return render(request, 'tracker/record_list.html', context)
 
 
@@ -103,6 +133,7 @@ def account_view(request):
 
 def staff_required(user):
     return user.is_authenticated and user.is_staff
+
 
 @login_required
 @user_passes_test(staff_required)
