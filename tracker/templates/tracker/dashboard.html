@@ -2,154 +2,165 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="dashboard-shell d-flex flex-column gap-3">
+    <div class="dashboard-shell d-flex flex-column gap-3">
 
-    <section class="dashboard-toolbar d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div>
-            <h1 class="h3 mb-0">Dashboard</h1>
-        </div>
+        <section class="dashboard-toolbar d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="h3 mb-0">Dashboard</h1>
+            </div>
 
-        <form class="d-flex align-items-center gap-2 flex-wrap mb-0" method="get">
-            <label for="date" class="form-label mb-0">Date</label>
-            <input type="date" id="date" name="date" class="form-control form-control-sm" value="{{ selected_date }}"
-                style="width: auto;">
-            <button class="btn btn-primary btn-sm" type="submit">View</button>
-        </form>
-    </section>
+            <form class="d-flex align-items-center gap-2 flex-wrap mb-0" method="get">
+                <label for="date" class="form-label mb-0">Date</label>
+                <input type="date" id="date" name="date" class="form-control form-control-sm"
+                       value="{{ selected_date }}"
+                       style="width: auto;">
+                <button class="btn btn-primary btn-sm" type="submit">View</button>
+            </form>
+        </section>
 
-    <section class="dashboard-main row g-3 flex-grow-1">
-        <div class="col-xl-8 d-flex flex-column gap-3">
-            <div class="row g-3">
-                <div class="col-6 col-md-4 col-xxl">
-                    <div class="card shadow-sm border-0 h-100">
-                        <div class="card-body py-2">
-                            <div class="text-muted small">Foods</div>
-                            <div class="fs-4 fw-semibold">{{ food_count }}</div>
+        <section class="dashboard-main row g-3 flex-grow-1">
+            <div class="col-xl-8 d-flex flex-column gap-3">
+                <div class="row g-3">
+                    <div class="col-6 col-md-4 col-xxl">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body py-2">
+                                <div class="text-muted small">Foods</div>
+                                <div class="fs-4 fw-semibold">{{ food_count }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-4 col-xxl">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body py-2">
+                                <div class="text-muted small">Calories</div>
+                                <div class="fs-4 fw-semibold">{{ totals.calories }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-4 col-xxl">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body py-2">
+                                <div class="text-muted small">Protein</div>
+                                <div class="fs-4 fw-semibold">{{ totals.protein }} <span class="fs-6">g</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-4 col-xxl">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body py-2">
+                                <div class="text-muted small">Fat</div>
+                                <div class="fs-4 fw-semibold">{{ totals.fat }} <span class="fs-6">g</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-4 col-xxl">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body py-2">
+                                <div class="text-muted small">Carbs</div>
+                                <div class="fs-4 fw-semibold">{{ totals.carbohydrates }} <span class="fs-6">g</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-4 col-xxl">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body py-2">
+                                <div class="text-muted small">Fiber</div>
+                                <div class="fs-4 fw-semibold">{{ totals.fiber }} <span class="fs-6">g</span></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-6 col-md-4 col-xxl">
-                    <div class="card shadow-sm border-0 h-100">
-                        <div class="card-body py-2">
-                            <div class="text-muted small">Calories</div>
-                            <div class="fs-4 fw-semibold">{{ totals.calories }}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-xxl">
-                    <div class="card shadow-sm border-0 h-100">
-                        <div class="card-body py-2">
-                            <div class="text-muted small">Protein</div>
-                            <div class="fs-4 fw-semibold">{{ totals.protein }} <span class="fs-6">g</span></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-xxl">
-                    <div class="card shadow-sm border-0 h-100">
-                        <div class="card-body py-2">
-                            <div class="text-muted small">Fat</div>
-                            <div class="fs-4 fw-semibold">{{ totals.fat }} <span class="fs-6">g</span></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-xxl">
-                    <div class="card shadow-sm border-0 h-100">
-                        <div class="card-body py-2">
-                            <div class="text-muted small">Carbs</div>
-                            <div class="fs-4 fw-semibold">{{ totals.carbohydrates }} <span class="fs-6">g</span></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-xxl">
-                    <div class="card shadow-sm border-0 h-100">
-                        <div class="card-body py-2">
-                            <div class="text-muted small">Fiber</div>
-                            <div class="fs-4 fw-semibold">{{ totals.fiber }} <span class="fs-6">g</span></div>
-                        </div>
+                <div class="card shadow-sm border-0 flex-grow-1">
+                    <div class="card-body p-2 h-100">
+                        <iframe src="{% url 'analysis_page' %}" class="dashboard-iframe rounded" loading="lazy">
+                        </iframe>
                     </div>
                 </div>
             </div>
 
-            <div class="card shadow-sm border-0 flex-grow-1">
-                <div class="card-body p-2 h-100">
-                    <iframe src="{% url 'analysis_page' %}" class="dashboard-iframe rounded" loading="lazy">
-                    </iframe>
-                </div>
-            </div>
-        </div>
+            <div class="col-xl-4 d-flex flex-column gap-3">
+                <article class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                            <h2 class="h5 mb-0">Today's Records</h2>
+                            <button class="btn btn-sm btn-primary" type="button"
+                                    onclick="openModal('{% url 'record_create' %}')">
+                                Add Record
+                            </button>
+                        </div>
 
-        <div class="col-xl-4 d-flex flex-column gap-3">
-            <article class="card shadow-sm border-0">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                        <h2 class="h5 mb-0">Today's Records</h2>
-                        <button class="btn btn-sm btn-primary" type="button"
-                            onclick="openModal('/records/add/')">
-                            Add Record
-                        </button>
+                        {% if records %}
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover align-middle mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th>Meal</th>
+                                        <th>Pro</th>
+                                        <th>Fat</th>
+                                        <th>Carb</th>
+                                        <th>Fibre</th>
+                                        <th>Cal</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for meal, data in meal_summary.items %}
+                                        <tr>
+                                            <td>{{ meal|title }}</td>
+                                            <td>{% if data.protein %}{{ data.protein|floatformat:1 }}{% else %}
+                                                -{% endif %}</td>
+                                            <td>{% if data.fat %}{{ data.fat|floatformat:1 }}{% else %}-{% endif %}</td>
+                                            <td>{% if data.carbs %}{{ data.carbs|floatformat:1 }}{% else %}
+                                                -{% endif %}</td>
+                                            <td>{% if data.fibre %}{{ data.fibre|floatformat:1 }}{% else %}
+                                                -{% endif %}</td>
+                                            <td>{% if data.calories %}{{ data.calories|floatformat:0 }}{% else %}
+                                                -{% endif %}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-muted mb-0">No records for the selected date.</p>
+                        {% endif %}
                     </div>
+                </article>
 
-                    {% if records %}
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Meal</th>
-                                    <th>Food</th>
-                                    <th>Qty</th>
-                                    <th>Calories</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for record in records %}
-                                <tr>
-                                    <td>{{ record.get_meal_type_display }}</td>
-                                    <td>{{ record.food.name }}</td>
-                                    <td>{{ record.quantity }}</td>
-                                    <td>{{ record.total_calories }}</td>
-                                </tr>
+                <article class="card shadow-sm border-0 flex-grow-1">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                            <h2 class="h5 mb-0">Recent Activity</h2>
+                            <button class="btn btn-sm btn-primary" type="button"
+                                    onclick="openModal('{% url 'food_create' %}')">
+                                Add Food
+                            </button>
+                        </div>
+
+                        {% if recent_records %}
+                            <ul class="list-group">
+                                {% for record in recent_records %}
+                                    <li class="list-group-item py-2">
+                                        <div class="small text-muted">{{ record.record_date }}</div>
+                                        <div>{{ record.food.name }}</div>
+                                        <div class="small text-muted">{{ record.quantity }}
+                                            × {{ record.food.unit }}</div>
+                                    </li>
                                 {% endfor %}
-                            </tbody>
-                        </table>
+                            </ul>
+                        {% else %}
+                            <p class="text-muted mb-0">No activity yet.</p>
+                        {% endif %}
                     </div>
-                    {% else %}
-                    <p class="text-muted mb-0">No records for the selected date.</p>
-                    {% endif %}
-                </div>
-            </article>
+                </article>
+            </div>
+        </section>
 
-            <article class="card shadow-sm border-0 flex-grow-1">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                        <h2 class="h5 mb-0">Recent Activity</h2>
-                        <button class="btn btn-sm btn-primary" type="button"
-                            onclick="openModal('/foods/add/')">
-                            Add Food
-                        </button>
-                    </div>
-
-                    {% if recent_records %}
-                    <ul class="list-group">
-                        {% for record in recent_records %}
-                        <li class="list-group-item py-2">
-                            <div class="small text-muted">{{ record.record_date }}</div>
-                            <div>{{ record.food.name }}</div>
-                            <div class="small text-muted">{{ record.quantity }} × {{ record.food.unit }}</div>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    {% else %}
-                    <p class="text-muted mb-0">No activity yet.</p>
-                    {% endif %}
-                </div>
-            </article>
-        </div>
-    </section>
-
-</div>
+    </div>
 {% endblock %}
