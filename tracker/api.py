@@ -8,7 +8,7 @@ from django.db.models import Sum, F, FloatField, ExpressionWrapper
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.forms import PasswordChangeForm
 
-from datetime import date
+from datetime import date, datetime, timedelta
 
 from django.urls import reverse
 
@@ -82,7 +82,21 @@ def user_login(request):
 
 @login_required
 def analysis(request):
-    qs = MealRecord.objects.filter(user=request.user)
+    selected_date = request.GET.get("date")
+
+    if selected_date:
+        selected_date = datetime.strptime(selected_date, "%Y-%m-%d").date()
+    else:
+        selected_date = date.today()
+
+    start_date = selected_date - timedelta(days=selected_date.weekday())
+    end_date = start_date + timedelta(days=6)
+
+    qs = MealRecord.objects.filter(
+        user=request.user,
+        record_date__range=(start_date, end_date)
+    )
+
     calories_expr = ExpressionWrapper(
         F('food__calories') * F('quantity'),
         output_field=FloatField()

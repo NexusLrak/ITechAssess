@@ -4,8 +4,33 @@ let renderTimer = null;
 let barView = null;
 let pieView = null;
 
-let selectedRange = null;
-let selectedDate = null;
+const params = new URLSearchParams(window.location.search);
+const selected_date = params.get("date")
+
+function applyTheme() {
+    const theme = localStorage.getItem("theme");
+
+    if (theme === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+    } else {
+        document.documentElement.removeAttribute("data-theme");
+    }
+}
+
+applyTheme();
+
+window.addEventListener("message", function (event) {
+
+    if (event.data === "themeChanged") {
+
+        applyTheme();
+
+        if (typeof renderCharts === "function") {
+            renderCharts();
+        }
+    }
+
+});
 
 function isDarkMode() {
     return localStorage.getItem("theme") === "dark";
@@ -41,24 +66,92 @@ function getChartSizes() {
     };
 }
 
+function getTodayRange() {
+    const start = new Date(selected_date);
+    start.setHours(0,0,0,0);
+
+    const end = new Date();
+    end.setHours(23,59,59,999);
+
+    return { start, end };
+}
+
+function getCurrentWeekRange() {
+    const today = new Date(selected_date);
+    const day = today.getDay();
+
+    const diffToMonday = day === 0 ? 6 : day - 1;
+
+    const start = new Date(today);
+    start.setHours(0,0,0,0);
+    start.setDate(today.getDate() - diffToMonday);
+
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    end.setHours(23,59,59,999);
+
+    return { start, end };
+}
+
+function filterByRange(data, start, end) {
+    if (!Array.isArray(data)) return [];
+
+    const startMs = start.getTime();
+    const endMs = end.getTime();
+
+    return data.filter(row => {
+        const d = new Date(row.date);
+        const ms = d.getTime();
+        return !Number.isNaN(ms) && ms >= startMs && ms <= endMs;
+    });
+}
+
+function filterCurrentWeek(data) {
+    const { start, end } = getCurrentWeekRange();
+
+    const startStr = start.toISOString().slice(0, 10);
+    const endStr = end.toISOString().slice(0, 10);
+
+    return data.filter((row) => {
+        return row.date >= startStr && row.date <= endStr;
+    });
+}
+
+function filterCurrentWeek(data) {
+    const {start,end} = getCurrentWeekRange();
+    return filterByRange(data,start, end);
+}
+
+function filterToday(data) {
+    const {start,end} = getTodayRange();
+    return filterByRange(data,start, end);
+}
+
+function hasKcalData(data) {
+    return Array.isArray(data) && data.some((row) => {
+        const kcal = Number(row.kcal);
+        return !Number.isNaN(kcal) && kcal > 0;
+    });
+}
+
 function buildPieSpec(filteredData, size) {
     const radius = 120;
+
     return {
         $schema: "https://vega.github.io/schema/vega-lite/v5.json",
         autosize: {
             type: "fit",
             contains: "padding"
         },
-
         background: getBgColor(),
         width: "container",
         height: 320,
-        data: {values: filteredData || []},
+        data: { values: filteredData || [] },
 
         transform: [
             {
                 aggregate: [
-                    {op: "sum", field: "kcal", as: "value"}
+                    { op: "sum", field: "kcal", as: "value" }
                 ],
                 groupby: ["macro"]
             },
@@ -69,7 +162,6 @@ function buildPieSpec(filteredData, size) {
         ],
 
         layer: [
-            // 1. donut
             {
                 mark: {
                     type: "arc",
@@ -103,13 +195,11 @@ function buildPieSpec(filteredData, size) {
                         sort: ["Protein", "Carbs", "Fat"]
                     },
                     tooltip: [
-                        {field: "macro", type: "nominal", title: "Macro"},
-                        {field: "value", type: "quantitative", title: "kcal", format: ".0f"}
+                        { field: "macro", type: "nominal", title: "Macro" },
+                        { field: "value", type: "quantitative", title: "kcal", format: ".0f" }
                     ]
                 }
             },
-
-            // 2. arc labels
             {
                 mark: {
                     type: "text",
@@ -133,18 +223,16 @@ function buildPieSpec(filteredData, size) {
                     },
                     text: {
                         field: "labels",
-                        type: "nominal",
+                        type: "nominal"
                     }
                 }
             },
-
-            // 3. center total
             {
-                data: {values: filteredData || []},
+                data: { values: filteredData || [] },
                 transform: [
                     {
                         aggregate: [
-                            {op: "sum", field: "kcal", as: "totalKcal"}
+                            { op: "sum", field: "kcal", as: "totalKcal" }
                         ]
                     }
                 ],
@@ -165,10 +253,8 @@ function buildPieSpec(filteredData, size) {
                     }
                 }
             },
-
-            // 4. center unit
             {
-                data: {values: [{}]},
+                data: { values: [{}] },
                 mark: {
                     type: "text",
                     align: "center",
@@ -178,27 +264,27 @@ function buildPieSpec(filteredData, size) {
                     fill: getTextColor()
                 },
                 encoding: {
-                    text: {value: "kcal"}
+                    text: { value: "kcal" }
                 }
             }
         ],
 
-        view: {stroke: null}
+        view: { stroke: null }
     };
 }
 
 function buildBarSpec(barData, size) {
-    const end = new Date();
-    end.setHours(0, 0, 0, 0);
+    const { start, end } = getCurrentWeekRange();
 
-    const start = new Date(end);
-    start.setDate(end.getDate() - 29);
-
-    const axisValues = [];
-    for (let i = 0; i < 30; i++) {
+    const axisLabels = [];
+    for (let i = 0; i < 7; i++) {
         const d = new Date(start);
         d.setDate(start.getDate() + i);
-        axisValues.push(d.toISOString());
+
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
+        axisLabels.push(`${yyyy}-${mm}-${dd}`);
     }
 
     return {
@@ -210,158 +296,183 @@ function buildBarSpec(barData, size) {
         background: getBgColor(),
         width: "container",
         height: 340,
-        data: {values: barData || []},
-        params: [
+        data: { values: filterCurrentWeek(barData) },
+
+        layer: [
             {
-                name: "dateBrush",
-                select: {
-                    type: "interval",
-                    encodings: ["x"]
+                transform: [
+                    {
+                        timeUnit: "yearmonthdate",
+                        field: "date",
+                        as: "day"
+                    },
+                    {
+                        calculate: "timeFormat(datum.day, '%Y-%m-%d')",
+                        as: "dayKey"
+                    },
+                    {
+                        calculate: "timeFormat(datum.day, '%m-%d')",
+                        as: "dayLabel"
+                    },
+                    {
+                        aggregate: [
+                            { op: "sum", field: "kcal", as: "kcal" }
+                        ],
+                        groupby: ["dayKey", "dayLabel", "macro"]
+                    }
+                ],
+                mark: {
+                    type: "bar"
+                },
+                encoding: {
+                    x: {
+                        field: "dayKey",
+                        type: "ordinal",
+                        title: "Date",
+                        sort: axisLabels,
+                        scale: {
+                            paddingInner: 0.08,
+                            paddingOuter: 0.22
+                        },
+                        axis: {
+                            labelAngle: -30,
+                            labelColor: getTextColor(),
+                            titleColor: getTextColor(),
+                            domainColor: getGridColor(),
+                            tickColor: getGridColor(),
+                            labelExpr: "substring(datum.label, 5, 10)"
+                        }
+                    },
+                    y: {
+                        field: "kcal",
+                        type: "quantitative",
+                        stack: "zero",
+                        title: "Calories (kcal)",
+                        axis: {
+                            labelColor: getTextColor(),
+                            titleColor: getTextColor(),
+                            gridColor: getGridColor(),
+                            domainColor: getGridColor(),
+                            tickColor: getGridColor()
+                        }
+                    },
+                    color: {
+                        field: "macro",
+                        type: "nominal",
+                        scale: {
+                            domain: ["Protein", "Carbs", "Fat"],
+                            range: ["#d16b6b", "#6fa8dc", "#e5c07b"]
+                        },
+                        legend: {
+                            title: "",
+                            symbolSize: 400,
+                            rowPadding: 8,
+                            labelFontWeight: "bold",
+                            labelColor: getTextColor(),
+                            titleColor: getTextColor()
+                        }
+                    },
+                    tooltip: [
+                        { field: "dayLabel", type: "nominal", title: "Date" },
+                        { field: "macro", type: "nominal", title: "Macro" },
+                        { field: "kcal", type: "quantitative", title: "Macro kcal", format: ".0f" }
+                    ]
+                }
+            },
+            {
+                transform: [
+                    {
+                        timeUnit: "yearmonthdate",
+                        field: "date",
+                        as: "day"
+                    },
+                    {
+                        calculate: "timeFormat(datum.day, '%Y-%m-%d')",
+                        as: "dayKey"
+                    },
+                    {
+                        calculate: "timeFormat(datum.day, '%m-%d')",
+                        as: "dayLabel"
+                    },
+                    {
+                        aggregate: [
+                            { op: "sum", field: "kcal", as: "totalKcal" }
+                        ],
+                        groupby: ["dayKey", "dayLabel"]
+                    },
+                    {
+                        calculate: "format(datum.totalKcal, '.0f') + ' kcal'",
+                        as: "totalLabel"
+                    }
+                ],
+                mark: {
+                    type: "text",
+                    dy: -8,
+                    fontSize: 13,
+                    fontWeight: "bold",
+                    fill: getTextColor()
+                },
+                encoding: {
+                    x: {
+                        field: "dayKey",
+                        type: "ordinal",
+                        sort: axisLabels
+                    },
+                    y: {
+                        field: "totalKcal",
+                        type: "quantitative"
+                    },
+                    text: {
+                        field: "totalLabel",
+                        type: "nominal"
+                    }
                 }
             }
         ],
-        mark: "bar",
-        encoding: {
-            x: {
-                field: "date",
-                type: "temporal",
-                title: "Date",
-                scale: {
-                    domain: [start.toISOString(), end.toISOString()],
-                    nice: false
-                },
-                axis: {
-                    format: "%m-%d",
-                    labelAngle: -30,
-                    values: axisValues,
-                    labelColor: getTextColor(),
-                    titleColor: getTextColor(),
-                    gridColor: getGridColor(),
-                    domainColor: getGridColor(),
-                    tickColor: getGridColor()
-                }
-            },
-            y: {
-                field: "kcal",
-                type: "quantitative",
-                stack: "zero",
-                title: "Calories (kcal)",
-                axis: {
-                    labelColor: getTextColor(),
-                    titleColor: getTextColor(),
-                    gridColor: getGridColor(),
-                    domainColor: getGridColor(),
-                    tickColor: getGridColor()
-                }
-            },
-            color: {
-                field: "macro",
-                type: "nominal",
-                scale: {
-                    domain: ["Protein", "Carbs", "Fat"],
-                    range: ["#d16b6b", "#6fa8dc", "#e5c07b"]
-                },
-                legend: {
-                    title: "",
-                    symbolSize: 400,
-                    rowPadding: 8,
-                    labelFontWeight: "bold",
-                    labelColor: getTextColor(),
-                    titleColor: getTextColor()
-                }
-            },
-            opacity: {
-                condition: {param: "dateBrush", value: 1},
-                value: 0.35
-            },
-            tooltip: [
-                {field: "date", type: "temporal", title: "Date"},
-                {field: "macro", type: "nominal", title: "Macro"},
-                {field: "kcal", type: "quantitative", title: "Macro kcal"},
-                {field: "dailyCalories", type: "quantitative", title: "Daily total kcal"}
-            ]
-        },
-        view: {stroke: null}
+
+        view: { stroke: null }
     };
-}
-
-function normalizeDateOnly(value) {
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) return null;
-
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-}
-
-function normalizeBrushRange(range) {
-    if (!range || !Array.isArray(range) || range.length !== 2) {
-        return null;
-    }
-
-    const start = new Date(range[0]);
-    const end = new Date(range[1]);
-
-    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
-        return null;
-    }
-
-    return [start.getTime(), end.getTime()];
-}
-
-function extractRangeFromBrushSignal(value) {
-    if (!value) return null;
-
-    if (Array.isArray(value.date) && value.date.length === 2) {
-        return value.date;
-    }
-
-    if (Array.isArray(value) && value.length === 2) {
-        return value;
-    }
-
-    return null;
-}
-
-function filterData(data) {
-    if (!Array.isArray(data)) return [];
-
-    if (selectedDate) {
-        const selectedDayMs = normalizeDateOnly(selectedDate);
-        if (selectedDayMs === null) return data;
-
-        return data.filter((row) => {
-            const rowDayMs = normalizeDateOnly(row.date);
-            return rowDayMs === selectedDayMs;
-        });
-    }
-
-    const normalizedRange = normalizeBrushRange(selectedRange);
-    if (normalizedRange) {
-        const [startMs, endMs] = normalizedRange;
-
-        return data.filter((row) => {
-            const rowMs = new Date(row.date).getTime();
-            if (Number.isNaN(rowMs)) return false;
-            return rowMs >= startMs && rowMs <= endMs;
-        });
-    }
-
-    return data;
 }
 
 async function renderPieChart() {
     if (!cachedData) return;
 
+    const pieContainer = document.getElementById("pie-chart");
+    if (!pieContainer) return;
+
     const size = getChartSizes();
-    const filteredData = filterData(cachedData.barData);
+    const filteredData = filterToday(cachedData.barData);
 
     if (pieView) {
         pieView.finalize();
         pieView = null;
     }
 
+    if (!hasKcalData(filteredData)) {
+        pieContainer.innerHTML = `
+            <div style="
+                width: 100%;
+                height: 320px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: ${getTextColor()};
+                background: ${getBgColor()};
+                font-size: 18px;
+                font-weight: 600;
+            ">
+                No data today
+            </div>
+        `;
+        return;
+    }
+
+    pieContainer.innerHTML = "";
+
     const result = await vegaEmbed(
         "#pie-chart",
-        buildPieSpec(filteredData, size), {
+        buildPieSpec(filteredData, size),
+        {
             actions: false,
             renderer: "svg"
         }
@@ -370,90 +481,12 @@ async function renderPieChart() {
     pieView = result.view;
 }
 
-function getAvailableSignalNames(view) {
-    try {
-        const signals = view.getState().signals || {};
-        return Object.keys(signals);
-    } catch (err) {
-        console.warn("Unable to inspect signals:", err);
-        return [];
-    }
-}
-
-function findBrushSignalName(view) {
-    const signalNames = getAvailableSignalNames(view);
-
-    const candidates = [
-        "dateBrush",
-        "dateBrush_tuple",
-        "dateBrush_x"
-    ];
-
-    for (const name of candidates) {
-        if (signalNames.includes(name)) {
-            return name;
-        }
-    }
-
-    return signalNames.find((name) => name.startsWith("dateBrush")) || null;
-}
-
-async function bindBarInteractions() {
-    if (!barView) return;
-
-    const brushSignalName = findBrushSignalName(barView);
-
-    if (brushSignalName) {
-        barView.addSignalListener(brushSignalName, async (_, value) => {
-            const range = extractRangeFromBrushSignal(value);
-            selectedRange = range;
-
-            if (range) {
-                selectedDate = null;
-            }
-
-            await renderPieChart();
-        });
-    } else {
-        console.warn("No dateBrush signal found.");
-    }
-
-    barView.addEventListener("click", async (event, item) => {
-        const datum = item && item.datum;
-
-        if (datum && datum.date) {
-            selectedDate = datum.date;
-            selectedRange = null;
-            await renderPieChart();
-            return;
-        }
-
-        selectedDate = null;
-        await renderPieChart();
-    });
-
-    barView.addEventListener("dblclick", async () => {
-        selectedDate = null;
-        selectedRange = null;
-        await renderPieChart();
-    });
-}
-
-async function restoreBarBrush() {
-    if (!barView || !selectedRange) return;
-
-    const brushSignalName = findBrushSignalName(barView);
-    if (!brushSignalName) return;
-
-    try {
-        await barView.signal(brushSignalName, {date: selectedRange}).runAsync();
-    } catch (err) {
-        console.warn("Failed to restore brush:", err);
-    }
-}
-
 async function renderBarChart() {
     if (!cachedData) return;
+
+
+    const barContainer = document.getElementById("bar-chart");
+    if (!barContainer) return;
 
     const size = getChartSizes();
 
@@ -462,18 +495,37 @@ async function renderBarChart() {
         barView = null;
     }
 
+    const filteredData = filterCurrentWeek(cachedData.barData);
+        
+    if (!hasKcalData(filteredData)) {
+        barContainer.innerHTML = `
+            <div style="
+                width: 100%;
+                height: 320px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: ${getTextColor()};
+                background: ${getBgColor()};
+                font-size: 18px;
+                font-weight: 600;
+            ">
+                No data this week
+            </div>
+        `;
+    return;
+    }
+
     const result = await vegaEmbed(
         "#bar-chart",
-        buildBarSpec(cachedData.barData, size), {
+        buildBarSpec(filteredData, size),
+        {
             actions: false,
             renderer: "svg"
         }
     );
 
     barView = result.view;
-
-    await bindBarInteractions();
-    await restoreBarBrush();
 }
 
 async function renderCharts() {
@@ -482,7 +534,7 @@ async function renderCharts() {
 }
 
 async function loadCharts() {
-    const response = await fetch("/api/analysis/", {
+    const response = await fetch("/api/analysis/?date="+selected_date, {
         method: "GET",
         headers: {
             "Accept": "application/json"
@@ -525,6 +577,8 @@ if (chartsEl) {
 
 window.addEventListener("message", (event) => {
     if (event.data === "themeChanged") {
-        renderCharts();
+        renderCharts().catch((err) => {
+            console.error("Failed to rerender charts after theme change:", err);
+        });
     }
 });

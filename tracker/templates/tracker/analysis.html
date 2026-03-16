@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -10,87 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+    <link rel="stylesheet" href="{% static 'tracker/css/analysis.css' %}">
 
-    <style>
-        :root {
-            --bg-color: #ffffff;
-            --card-bg: #ffffff;
-            --border-color: #e9ecef;
-            --text-color: #333;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #1e2523;
-            --card-bg: #2a3230;
-            --border-color: #3c4744;
-            --text-color: #e6f1ec;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            margin: 0;
-            width: 100%;
-            height: auto;
-            min-height: 100%;
-            background: var(--bg-color);
-            color: var(--text-color);
-            overflow-y: auto;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            padding: 10px 12px;
-        }
-
-        #charts {
-            display: grid;
-            grid-template-rows: minmax(320px, auto) minmax(380px, auto);
-            gap: 12px;
-            width: 100%;
-            min-height: 720px;
-        }
-
-        .chart-card {
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--card-bg);
-            padding: 8px;
-            overflow: hidden;
-            min-width: 0;
-            min-height: 300px;
-        }
-
-        .chart {
-            width: 100%;
-            height: auto;
-        }
-
-        @media (max-width: 768px) {
-
-            html,
-            body {
-                height: auto;
-                overflow: auto;
-            }
-
-            #charts {
-                grid-template-rows: auto auto;
-                height: auto;
-            }
-
-            .chart-card:first-child {
-                min-height: 320px;
-            }
-
-            .chart-card:last-child {
-                min-height: 240px;
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -104,33 +25,6 @@
 {#        </div>#}
     </div>
 </div>
-
-<script>
-    function applyTheme() {
-        const theme = localStorage.getItem("theme");
-
-        if (theme === "dark") {
-            document.documentElement.setAttribute("data-theme", "dark");
-        } else {
-            document.documentElement.removeAttribute("data-theme");
-        }
-    }
-
-    applyTheme();
-
-    window.addEventListener("message", function (event) {
-
-        if (event.data === "themeChanged") {
-
-            applyTheme();
-
-            if (typeof renderCharts === "function") {
-                renderCharts();   // 重新渲染 Vega 图表
-            }
-        }
-
-    });
-</script>
 <script src="{% static 'tracker/js/analysis.js' %}"></script>
 </body>
 

@@ -1,6 +1,14 @@
 {% extends 'tracker/base.html' %}
 {% block title %}Dashboard{% endblock %}
 
+{% block extra_css %}
+    {{ meal_record_media_form.media.css }}
+{% endblock %}
+
+{% block extra_js %}
+    {{ meal_record_media_form.media.js }}
+{% endblock %}
+
 {% block content %}
     <div class="dashboard-shell d-flex flex-column gap-3">
 
@@ -25,7 +33,7 @@
                         <div class="card shadow-sm border-0 h-100">
                             <div class="card-body py-2">
                                 <div class="text-muted small">Foods</div>
-                                <div class="fs-4 fw-semibold">{{ food_count }}</div>
+                                <div class="fs-5 fw-semibold">{{ food_count }}</div>
                             </div>
                         </div>
                     </div>
@@ -34,7 +42,7 @@
                         <div class="card shadow-sm border-0 h-100">
                             <div class="card-body py-2">
                                 <div class="text-muted small">Calories</div>
-                                <div class="fs-4 fw-semibold">{{ totals.calories }}</div>
+                                <div class="fs-5 fw-semibold">{{ totals.calories }}</div>
                             </div>
                         </div>
                     </div>
@@ -43,7 +51,7 @@
                         <div class="card shadow-sm border-0 h-100">
                             <div class="card-body py-2">
                                 <div class="text-muted small">Protein</div>
-                                <div class="fs-4 fw-semibold">{{ totals.protein }} <span class="fs-6">g</span></div>
+                                <div class="fs-5 fw-semibold">{{ totals.protein }} <span class="fs-6">g</span></div>
                             </div>
                         </div>
                     </div>
@@ -52,7 +60,7 @@
                         <div class="card shadow-sm border-0 h-100">
                             <div class="card-body py-2">
                                 <div class="text-muted small">Fat</div>
-                                <div class="fs-4 fw-semibold">{{ totals.fat }} <span class="fs-6">g</span></div>
+                                <div class="fs-5 fw-semibold">{{ totals.fat }} <span class="fs-6">g</span></div>
                             </div>
                         </div>
                     </div>
@@ -61,7 +69,7 @@
                         <div class="card shadow-sm border-0 h-100">
                             <div class="card-body py-2">
                                 <div class="text-muted small">Carbs</div>
-                                <div class="fs-4 fw-semibold">{{ totals.carbohydrates }} <span class="fs-6">g</span>
+                                <div class="fs-5 fw-semibold">{{ totals.carbohydrates }} <span class="fs-6">g</span>
                                 </div>
                             </div>
                         </div>
@@ -71,7 +79,7 @@
                         <div class="card shadow-sm border-0 h-100">
                             <div class="card-body py-2">
                                 <div class="text-muted small">Fiber</div>
-                                <div class="fs-4 fw-semibold">{{ totals.fiber }} <span class="fs-6">g</span></div>
+                                <div class="fs-5 fw-semibold">{{ totals.fiber }} <span class="fs-6">g</span></div>
                             </div>
                         </div>
                     </div>
@@ -79,7 +87,7 @@
 
                 <div class="card shadow-sm border-0 flex-grow-1">
                     <div class="card-body p-2 h-100">
-                        <iframe src="{% url 'analysis_page' %}" class="dashboard-iframe rounded" loading="lazy">
+                        <iframe src="{% url 'analysis_page' %}?date={{ selected_date }}" class="dashboard-iframe rounded" loading="lazy">
                         </iframe>
                     </div>
                 </div>
@@ -145,8 +153,8 @@
 
                         {% if recent_records %}
                             <ul class="list-group">
-                                {% for record in recent_records %}
-                                    <li class="list-group-item py-2">
+                                {% for record in recent_records|slice:":6" %}
+                                    <li class="list-group-item py-1">
                                         <div class="small text-muted">{{ record.record_date }}</div>
                                         <div>{{ record.food.name }}</div>
                                         <div class="small text-muted">{{ record.quantity }}
