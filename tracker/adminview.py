@@ -160,7 +160,13 @@ def admin_user_detail_view(request, user_id):
     if request.method == "POST":
         form = AdminUserUpdateForm(request.POST, instance=managed_user)
         if form.is_valid():
-            if managed_user == request.user and not form.cleaned_data["is_staff"]:
+            if user_id == 1 and not \
+                (form.cleaned_data["is_superuser"] \
+                 and form.cleaned_data["is_staff"] \
+                 and form.cleaned_data["is_active"]):
+                
+                messages.error(request, "Cannot remove admin access.")
+            elif  managed_user == request.user and not form.cleaned_data["is_staff"]:
                 messages.error(request, "You cannot remove your own staff access.")
             else:
                 form.save()
@@ -187,6 +193,10 @@ def admin_user_delete_view(request, user_id):
     if managed_user == request.user:
         messages.error(request, "You cannot delete your own account from the admin panel.")
         return redirect("admin_user_detail", user_id=managed_user.id)
+    
+    if user_id == 1:
+            messages.error(request, "You cannot delete admin account from this panel.")
+            return redirect("admin_user_detail", user_id=managed_user.id)
 
     managed_user.delete()
     messages.success(request, "User deleted successfully.")

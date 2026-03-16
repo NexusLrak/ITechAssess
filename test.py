@@ -7,7 +7,6 @@ django.setup()
 from django.core.management import call_command
 from django.contrib.auth import get_user_model
 
-call_command("makemigrations", "tracker", interactive=False)
 call_command("migrate", interactive=False)
 
 User = get_user_model()

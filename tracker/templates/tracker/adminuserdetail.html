@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'tracker/base.html' %}
 
 {% block title %}Manage User{% endblock %}
 {% block main_container_class %}container py-5{% endblock %}
@@ -144,7 +144,7 @@
                         </div>
 
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal"
-                            data-bs-target="#deleteUserModal" {% if managed_user==request.user %}disabled{% endif %}>
+                            data-bs-target="#deleteUserModal" {% if managed_user == request.user %}disabled{% endif %}>
                             Delete User
                         </button>
 
