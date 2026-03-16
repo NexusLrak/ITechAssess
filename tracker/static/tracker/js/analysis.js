@@ -70,7 +70,7 @@ function getTodayRange() {
     const start = new Date(selected_date);
     start.setHours(0,0,0,0);
 
-    const end = new Date();
+    const end = new Date(selected_date);
     end.setHours(23,59,59,999);
 
     return { start, end };
