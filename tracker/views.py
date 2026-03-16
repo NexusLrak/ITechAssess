@@ -4,7 +4,6 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
-from django.contrib.auth.forms import PasswordChangeForm
 from django.db.models import Sum, F, FloatField, ExpressionWrapper, Count
 
 from .forms import *
@@ -13,7 +12,13 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 
 
 def home(request):
-    return render(request, 'tracker/home.html')
+    if request.user.is_staff:
+        return redirect('admin_user_list')
+    elif request.user.is_authenticated:
+        return redirect('dashboard')
+    else :
+        return render(request, 'tracker/login.html')
+
 
 
 def register(request):

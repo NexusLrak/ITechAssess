@@ -25,7 +25,7 @@
             </a>
 
             {% if user.is_authenticated %}
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-label="Options">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
@@ -42,7 +42,7 @@
 
                         <form action="{% url 'account' %}" method="post" class="ms-lg-2 mb-0">
                             {% csrf_token %}
-                            <button class="btn p-0 border-0 bg-transparent" type="submit" title="Logout">
+                            <button class="btn p-0 border-0 bg-transparent" type="submit" title="User info" aria-label="User info">
                                 <span class="avatar-circle">
                                     {{ request.user.username|default:'U'|first|upper }}
                                 </span>
@@ -68,7 +68,7 @@
                         {% endif %}
                         alert-dismissible fade show" role="alert">
                         {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endfor %}
             </div>
