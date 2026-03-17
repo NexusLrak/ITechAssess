@@ -5,3 +5,4 @@ nutrition_tracker_full/__pycache__/
 .env
 .vnev/
 tracker/migrations/
+db.sqlite
