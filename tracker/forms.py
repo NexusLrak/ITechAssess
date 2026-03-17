@@ -48,8 +48,8 @@ class FoodForm(BootstrapFormMixin, forms.ModelForm):
 
         if None not in (a, b, c, d):
             e = 4.0*b + 4.0*c + 9.0*d # calorie = 4 * protein + 4 * carbs + 9 * fat
-            if a != e:
-                raise forms.ValidationError("Calories should be" + str(e) + "kcals")
+            if abs(a - e) > 1:  # ±1 kcal
+                raise forms.ValidationError(f"Calories should be {e:.1f} kcals")
 
         return cleaned_data
 
