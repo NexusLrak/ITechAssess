@@ -114,16 +114,18 @@ def food_list(request):
     foods = Food.objects.filter(user=request.user)
 
     admin_user = User.objects.filter(is_superuser=True).first()
+
     if(admin_user):
         foods = Food.objects.filter(
             Q(user=request.user) | Q(user=admin_user)
         ).annotate(
             sort_priority=Case(
                 When(user=request.user, then=Value(0)),
-                default=Value(1),
+                When(user=admin_user, then=Value(1)),
+                default=Value(2),
                 output_field=IntegerField(),
             )
-        ).order_by('-id')
+        ).order_by('sort_priority', '-id')
 
     return render(request, 'tracker/food_list.html', {'foods': foods})
 
