@@ -233,7 +233,7 @@ class RecordViewTests(TestCase):
         response = self.client.get(reverse('record_delete', args=[self.record.pk]))
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tracker/confirm_delete.html')
+        self.assertTemplateUsed(response, 'tracker/confirm.html')
         self.assertEqual(response.context['object'], self.record)
         self.assertEqual(response.context['type_name'], 'record')
 

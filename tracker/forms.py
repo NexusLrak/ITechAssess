@@ -35,24 +35,26 @@ class FoodForm(BootstrapFormMixin, forms.ModelForm):
         model = Food
         fields = ['name', 'unit', 'calories', 'protein', 'fat', 'carbohydrates', 'fiber']
         widgets = {
-            field: forms.NumberInput(attrs={'step': '0.01'})
-            for field in ['calories', 'protein', 'fat', 'carbohydrates', 'fiber']
+            'calories': forms.NumberInput(attrs={'step': '0.01', 'readonly': 'readonly'}),
+            'protein': forms.NumberInput(attrs={'step': '0.01'}),
+            'fat': forms.NumberInput(attrs={'step': '0.01'}),
+            'carbohydrates': forms.NumberInput(attrs={'step': '0.01'}),
+            'fiber': forms.NumberInput(attrs={'step': '0.01'}),
         }
 
     def clean(self):
         cleaned_data = super().clean()
-        a = cleaned_data.get('calories')
-        b = cleaned_data.get('protein')
-        c = cleaned_data.get('carbohydrates')
-        d = cleaned_data.get('fat')
 
-        if None not in (a, b, c, d):
-            e = 4.0*b + 4.0*c + 9.0*d # calorie = 4 * protein + 4 * carbs + 9 * fat
-            if abs(a - e) > 1:  # ±1 kcal
-                raise forms.ValidationError(f"Calories should be {e:.1f} kcals")
+        protein = cleaned_data.get('protein')
+        carbohydrates = cleaned_data.get('carbohydrates')
+        fat = cleaned_data.get('fat')
+        fiber = cleaned_data.get('fiber')
+
+        if None not in (protein, carbohydrates, fat, fiber):
+            calories = 4.0 * protein + 4.0 * carbohydrates + 9.0 * fat + 2.0 * fiber
+            cleaned_data['calories'] = round(calories, 2)
 
         return cleaned_data
-
     
 class StyledFormMixin:
     def apply_bootstrap_classes(self):
@@ -119,7 +121,7 @@ class DeleteAccountForm(StyledFormMixin, forms.Form):
             raise forms.ValidationError('Please type "DELETE" exactly.')
         return confirm_text
     
-
+from django.db.models import Q
 class MealRecordForm(BootstrapFormMixin, forms.ModelForm):
     food = forms.ModelChoiceField(
         queryset=Food.objects.none(),
@@ -139,7 +141,8 @@ class MealRecordForm(BootstrapFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if self.user is not None:
-            self.fields['food'].queryset = Food.objects.filter(user=self.user)
+            admin_user = User.objects.filter(is_superuser=True).first()
+            self.fields['food'].queryset = Food.objects.filter(Q(user=self.user) | Q(user=admin_user))
 
     def save(self, commit=True):
         if self.user is None:

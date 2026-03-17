@@ -1,6 +1,7 @@
 {% extends 'tracker/base.html' %}
 {% block title %}Dashboard{% endblock %}
 
+
 {% block extra_css %}
     {{ meal_record_media_form.media.css }}
 {% endblock %}
@@ -33,7 +34,7 @@
                         <div class="card shadow-sm border-0 h-100">
                             <div class="card-body py-2">
                                 <div class="text-muted small">Records</div>
-                                <div class="fs-5 fw-semibold">{{ food_count }}</div>
+                                <div class="fs-5 fw-semibold">{{ record_count }}</div>
                             </div>
                         </div>
                     </div>
@@ -151,14 +152,11 @@
                             </button>
                         </div>
 
-                        {% if recent_records %}
+                        {% if recent_activities %}
                             <ul class="list-group">
-                                {% for record in recent_records|slice:":6" %}
+                                {% for infos in recent_activities|slice:":8" %}
                                     <li class="list-group-item py-1">
-                                        <div class="small text-muted">{{ record.record_date }}</div>
-                                        <div>{{ record.food_name }}</div>
-                                        <div class="small text-muted">{{ record.quantity }}
-                                            × {{ record.food_unit }}</div>
+                                        <div class="small text-muted">{{ infos.textinfo }}</div>
                                     </li>
                                 {% endfor %}
                             </ul>

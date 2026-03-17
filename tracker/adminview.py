@@ -3,8 +3,11 @@ from django.contrib.auth import get_user_model, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.http import HttpResponse
 
 from .adminform import AdminUserUpdateForm
+from .forms import Food
+from .models import Activities
 
 from .forms import (
     CustomPasswordChangeForm,
@@ -13,7 +16,6 @@ from .forms import (
 )
 
 User = get_user_model()
-
 
 def staff_required(user):
     return user.is_authenticated and user.is_staff
@@ -80,15 +82,6 @@ def change_password_view(request):
             "delete_form": delete_form,
         },
     )
-
-
-@login_required
-def logout_view(request):
-    if request.method == "POST":
-        logout(request)
-        messages.success(request, "You have been logged out.")
-        return redirect("home")
-    return redirect("account")
 
 
 @login_required
@@ -160,7 +153,7 @@ def admin_user_detail_view(request, user_id):
     if request.method == "POST":
         form = AdminUserUpdateForm(request.POST, instance=managed_user)
         if form.is_valid():
-            if user_id == 1 and not \
+            if user_id == request.user and not \
                 (form.cleaned_data["is_superuser"] \
                  and form.cleaned_data["is_staff"] \
                  and form.cleaned_data["is_active"]):
@@ -169,6 +162,7 @@ def admin_user_detail_view(request, user_id):
             elif  managed_user == request.user and not form.cleaned_data["is_staff"]:
                 messages.error(request, "You cannot remove your own staff access.")
             else:
+                form.cleaned_data["is_superuser"] = False
                 form.save()
                 messages.success(request, "User updated successfully.")
                 return redirect("admin_user_detail", user_id=managed_user.id)
@@ -201,3 +195,79 @@ def admin_user_delete_view(request, user_id):
     managed_user.delete()
     messages.success(request, "User deleted successfully.")
     return redirect("admin_user_list")
+
+
+from django.db.models import Q, Case, When, Value, IntegerField
+from django.urls import reverse
+
+@login_required
+@user_passes_test(staff_required)
+def food_list_admin(request):
+    foods = Food.objects.all().annotate(
+        sort_priority=Case(
+            When(user=request.user, then=Value(0)),
+            default=Value(1),
+            output_field=IntegerField(),
+        )
+    ).order_by('sort_priority', '-id')
+
+    return render(request, 'tracker/food_list.html', {'foods': foods})
+
+@login_required
+@user_passes_test(staff_required)
+def food_adopt(request, pk):
+    food = get_object_or_404(Food, pk=pk)
+
+    
+    if request.method == 'POST':
+        admin_user = User.objects.filter(is_superuser=True).first()
+
+        Activities.objects.create(
+            user=food.user,
+            textinfo=f'Your food "{food.name}" has been added into common selection.'
+        )
+
+        food.user = admin_user
+        food.save()
+        messages.success(request, 'Food deleted successfully.')
+        return HttpResponse(status=204)
+    
+
+    return render(
+        request,
+        'tracker/confirm.html',
+        {
+            'object': food,
+            'type_name': 'food',
+            'option': 'Add to common:',
+            'form_action': reverse('food_adopt', args=[food.pk])
+        }
+    )
+
+
+@login_required
+@user_passes_test(staff_required)
+def food_delete_admin(request, pk):
+    food = get_object_or_404(Food, pk=pk)
+
+    if request.method == 'POST':
+
+        Activities.objects.create(
+            user=food.user,
+            textinfo=f'A food "{food.name}" was deleted by admin.'
+        )
+
+        food.delete()
+        messages.success(request, 'Food deleted successfully.')
+        return HttpResponse(status=204)
+
+    return render(
+        request,
+        'tracker/confirm.html',
+        {
+            'object': food,
+            'type_name': 'food',
+            'option': 'Delete',
+            'form_action': reverse('food_delete_admin', args=[food.pk])
+        }
+    )

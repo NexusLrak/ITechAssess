@@ -95,8 +95,7 @@ def dashboard(request):
         'fiber': round(sum(r.total_fiber for r in records), 2),
     }
 
-    recent_records = MealRecord.objects.filter(user=request.user)[:8]
-    food_count = Food.objects.filter(user=request.user).count()
+    recent_activities = Activities.objects.filter(user=request.user)[:8]
     record_count = MealRecord.objects.filter(user=request.user).count()
 
     context = {
@@ -104,16 +103,28 @@ def dashboard(request):
         'meal_summary': meal_summary,
         'records': records,
         'totals': totals,
-        'recent_records': recent_records,
-        'food_count': food_count,
+        'recent_activities': recent_activities,
         'record_count': record_count,
     }
     return render(request, 'tracker/dashboard.html', context)
 
-
+from django.db.models import Q, Case, When, Value, IntegerField
 @login_required
 def food_list(request):
     foods = Food.objects.filter(user=request.user)
+
+    admin_user = User.objects.filter(is_superuser=True).first()
+    if(admin_user):
+        foods = Food.objects.filter(
+            Q(user=request.user) | Q(user=admin_user)
+        ).annotate(
+            sort_priority=Case(
+                When(user=request.user, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            )
+        ).order_by('-id')
+
     return render(request, 'tracker/food_list.html', {'foods': foods})
 
 

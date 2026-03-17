@@ -109,6 +109,7 @@
                                     </div>
                                 </div>
 
+                                {% if form.is_superuser %}
                                 <div class="col-12 col-md-4">
                                     <div class="form-check">
                                         {{ form.is_superuser }}
@@ -117,6 +118,7 @@
                                         </label>
                                     </div>
                                 </div>
+                                {% endif %}
                             </div>
 
                             {% if form.non_field_errors %}

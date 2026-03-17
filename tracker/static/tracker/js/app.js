@@ -22,8 +22,8 @@ async function openModal(url) {
     bsModal.show();
 
     bindModalForm(modalBody, bsModal);
+    caloriesBind();
 }
-
 
 function bindModalForm(container, bsModal) {
     const form = container.querySelector('form');
@@ -84,3 +84,26 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+
+function updateCalories() {
+    const protein = parseFloat(document.getElementById('id_protein')?.value) || 0;
+    const carbs   = parseFloat(document.getElementById('id_carbohydrates')?.value) || 0;
+    const fat     = parseFloat(document.getElementById('id_fat')?.value) || 0;
+    const fiber   = parseFloat(document.getElementById('id_fiber')?.value) || 0;
+
+    const calories = 4 * protein + 4 * carbs + 9 * fat + 2 * fiber;
+
+    const calorieField = document.getElementById('id_calories');
+    if (calorieField) {
+        calorieField.value = calories.toFixed(0);
+    }
+}
+
+function caloriesBind() {
+    ['id_protein','id_carbs','id_fat','id_fiber'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', updateCalories);
+        }
+    });
+}

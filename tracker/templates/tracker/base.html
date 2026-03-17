@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Nutrition Tracker{% endblock %}</title>
 
-    <!-- <link rel="stylesheet" href="{% static 'tracker/css/bootstrap.min.css' %}"> -->
     <link rel="stylesheet" href="{% static 'tracker/css/bootstrap-custom.min.css' %}">
     <link rel="stylesheet" href="{% static 'tracker/css/common.css' %}">
     {% block extra_css %}{% endblock %}
@@ -34,12 +33,14 @@
                     <div class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
                         {% if request.user.is_staff %}
                             <a class="nav-link" href="{% url 'admin_user_list' %}">User Management</a>
+                            <a class="nav-link" href="{% url 'food_list_admin' %}">Foods Management</a>
 
                         {% else %}
                             <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
                             <a class="nav-link" href="{% url 'food_list' %}">Foods</a>
                             <a class="nav-link" href="{% url 'record_list' %}">Records</a>
                         {% endif %}
+                            
 
                         <form action="{% url 'account' %}" method="post" class="ms-lg-2 mb-0">
                             {% csrf_token %}
@@ -96,6 +97,8 @@
 <button id="themeToggle" class="theme-toggle" title="Toggle theme">
     🌙
 </button>
+
+{% block extra_js %}{% endblock %}
 </body>
 
 </html>

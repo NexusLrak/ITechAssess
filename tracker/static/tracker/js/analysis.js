@@ -322,7 +322,8 @@ function buildBarSpec(barData, size) {
                     }
                 ],
                 mark: {
-                    type: "bar"
+                    type: "bar",
+                    "size": 60
                 },
                 encoding: {
                     x: {

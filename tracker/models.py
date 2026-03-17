@@ -75,3 +75,34 @@ class MealRecord(models.Model):
     @property
     def total_fiber(self):
         return round(self.food_fiber * self.quantity, 2)
+    
+
+class Activities(models.Model):
+        
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+
+    textinfo = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["user", '-created_at']
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+
+        if is_new:
+            max_count = 30
+            delete_count = 10
+
+            qs = Activities.objects.order_by('-created_at')
+            total = qs.count()
+
+            if total > max_count:
+                ids = list(
+                    qs.values_list('id', flat=True)[max_count:max_count + delete_count]
+                )
+                Activities.objects.filter(id__in=ids).delete()

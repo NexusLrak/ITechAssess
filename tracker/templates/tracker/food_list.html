@@ -37,10 +37,19 @@
                             <td class="text-center">{{ food.carbohydrates }}</td>
                             <td class="text-center">{{ food.fiber }}</td>
                             <td class="text-end">
-                                <button class="btn btn-primary btn-sm" type="button"
-                                    onclick="openModal('{% url 'food_edit' food.pk %}')">Edit</button>
-                                <button class="btn btn-primary btn-sm" type="button"
-                                    onclick="openModal('{% url 'food_delete' food.pk %}')">Delete</button>
+                                {% if food.user == request.user %}
+                                    <button class="btn btn-primary btn-sm" type="button"
+                                        onclick="openModal('{% url 'food_edit' food.pk %}')">Edit</button>
+                                    <button class="btn btn-danger btn-sm" type="button"
+                                        onclick="openModal('{% url 'food_delete' food.pk %}')">Delete</button>
+                                {% elif request.user.is_staff %}
+                                    <button class="btn btn-primary btn-sm" type="button"
+                                        onclick="openModal('{% url 'food_adopt' food.pk %}')">Adopt</button>
+                                    <button class="btn btn-danger btn-sm" type="button"
+                                        onclick="openModal('{% url 'food_delete_admin' food.pk %}')">Delete</button>
+                                {% else  %}
+                                    Common
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}

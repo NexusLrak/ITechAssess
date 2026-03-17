@@ -6,7 +6,6 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, F, FloatField, ExpressionWrapper
 from django.http import JsonResponse, HttpResponse
-from django.contrib.auth.forms import PasswordChangeForm
 
 from datetime import date, datetime, timedelta
 
@@ -172,6 +171,11 @@ def food_create(request):
             food.user = request.user
             food.save()
 
+            Activities.objects.create(
+                user=request.user,
+                textinfo=f'Add a new food: "{food.name}".'
+            )
+
             messages.success(request, 'Food added successfully.')
             return HttpResponse(status=204)
 
@@ -219,15 +223,21 @@ def food_delete(request, pk):
     if request.method == 'POST':
         food.delete()
 
+        Activities.objects.create(
+            user=request.user,
+            textinfo=f'Delete a food: "{food.name}".'
+        )
+
         messages.success(request, 'Food deleted successfully.')
         return HttpResponse(status=204)
 
     return render(
         request,
-        'tracker/confirm_delete.html',
+        'tracker/confirm.html',
         {
             'object': food,
             'type_name': 'food',
+            'option': 'Delete',
             'form_action': reverse('food_delete', args=[food.pk])
         }
     )
@@ -243,6 +253,12 @@ def record_create(request):
             record = form.save(commit=False)
             record.user = request.user
             record.save()
+            
+            Activities.objects.create(
+                user=request.user,
+                textinfo=f'Add a new record of date: {record.record_date}.'
+            )
+
             messages.success(request, 'Meal record added successfully.')
             return HttpResponse(status=204)
     else:
@@ -297,10 +313,11 @@ def record_delete(request, pk):
 
     return render(
         request,
-        'tracker/confirm_delete.html',
+        'tracker/confirm.html',
         {
             'object': record,
             'type_name': 'record',
+            'option': 'Delete',
             'form_action': reverse('record_delete', args=[record.pk])
         }
     )
