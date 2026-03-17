@@ -42,7 +42,7 @@
                                         onclick="openModal('{% url 'food_edit' food.pk %}')">Edit</button>
                                     <button class="btn btn-danger btn-sm" type="button"
                                         onclick="openModal('{% url 'food_delete' food.pk %}')">Delete</button>
-                                {% elif request.user.is_staff %}
+                                {% elif food.user.is_staff %}
                                     <button class="btn btn-primary btn-sm" type="button"
                                         onclick="openModal('{% url 'food_adopt' food.pk %}')">Adopt</button>
                                     <button class="btn btn-danger btn-sm" type="button"
