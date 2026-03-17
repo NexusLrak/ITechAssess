@@ -258,32 +258,6 @@ def record_create(request):
         }
     )
 
-
-@login_required
-def record_create_test(request):
-    if request.method == 'POST':
-        form = MealEntryForm(request.POST, user=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Meal record added successfully.')
-            return HttpResponse(status=204)
-    else:
-        form = MealEntryForm(
-            user=request.user,
-            initial={'record_date': date.today()}
-        )
-
-    return render(
-        request,
-        'tracker/record_form.html',
-        {
-            'form': form,
-            'title': 'Add Record',
-            'form_action': reverse('record_test'),
-        }
-    )
-
-
 @login_required
 def record_edit(request, pk):
     record = get_object_or_404(MealRecord, pk=pk, user=request.user)

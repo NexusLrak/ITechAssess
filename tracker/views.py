@@ -37,15 +37,6 @@ def register(request):
     return render(request, 'tracker/register.html', {'form': form})
 
 
-from datetime import date
-
-from django.contrib.auth.decorators import login_required
-from django.db.models import Sum, F, FloatField, ExpressionWrapper
-from django.shortcuts import render
-
-from .models import MealRecord, Food
-
-
 @login_required
 def dashboard(request):
     selected_date = request.GET.get('date') or date.today().isoformat()
@@ -124,13 +115,6 @@ def dashboard(request):
 def food_list(request):
     foods = Food.objects.filter(user=request.user)
     return render(request, 'tracker/food_list.html', {'foods': foods})
-
-
-from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Sum, F
-from django.shortcuts import render
-
-from .models import MealRecord
 
 
 @login_required
