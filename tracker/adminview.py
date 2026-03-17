@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.http import HttpResponse
 
 from .adminform import AdminUserUpdateForm
-from .forms import Food
+from .forms import Food, FoodForm
 from .models import Activities
 
 from .forms import (
@@ -203,10 +203,12 @@ from django.urls import reverse
 @login_required
 @user_passes_test(staff_required)
 def food_list_admin(request):
+    admin_user = User.objects.filter(is_superuser=True).first()
     foods = Food.objects.all().annotate(
         sort_priority=Case(
-            When(user=request.user, then=Value(0)),
-            default=Value(1),
+            When(user=admin_user, then=Value(0)),
+            When(user=request.user, then=Value(1)),
+            default=Value(2),
             output_field=IntegerField(),
         )
     ).order_by('sort_priority', '-id')
@@ -269,5 +271,31 @@ def food_delete_admin(request, pk):
             'type_name': 'food',
             'option': 'Delete',
             'form_action': reverse('food_delete_admin', args=[food.pk])
+        }
+    )
+
+
+@login_required
+@user_passes_test(staff_required)
+def food_edit_admin(request, pk):
+    food = get_object_or_404(Food, pk=pk)
+
+    if request.method == 'POST':
+        form = FoodForm(request.POST, instance=food)
+        if form.is_valid():
+            form.save()
+
+            messages.success(request, 'Food updated successfully.')
+            return HttpResponse(status=204)
+    else:
+        form = FoodForm(instance=food)
+
+    return render(
+        request,
+        'tracker/food_form.html',
+        {
+            'form': form,
+            'title': 'Edit Food',
+            'form_action': reverse('food_edit', args=[food.pk])
         }
     )

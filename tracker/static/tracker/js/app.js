@@ -100,7 +100,7 @@ function updateCalories() {
 }
 
 function caloriesBind() {
-    ['id_protein','id_carbs','id_fat','id_fiber'].forEach(id => {
+    ['id_protein','id_carbohydrates','id_fat','id_fiber'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener('input', updateCalories);

@@ -36,7 +36,9 @@ urlpatterns = [
     path("management/users/", adminview.admin_user_list_view, name="admin_user_list"),
     path("management/users/<int:user_id>/", adminview.admin_user_detail_view, name="admin_user_detail"),
     path("management/users/<int:user_id>/delete/", adminview.admin_user_delete_view, name="admin_user_delete"),
-    path('foods/<int:pk>/adopt/', adminview.food_adopt, name='food_adopt'),
+    
     path('admin/foods/', adminview.food_list_admin, name='food_list_admin'),
+    path('admin/foods/<int:pk>/adopt/', adminview.food_adopt, name='food_adopt'),
     path('admin/foods/<int:pk>/delete/', adminview.food_delete_admin, name='food_delete_admin'),
+    path('admin/foods/<int:pk>/edit/', adminview.food_edit_admin, name='food_edit_admin'),    
 ]

@@ -168,7 +168,15 @@ def food_create(request):
         form = FoodForm(request.POST)
         if form.is_valid():
             food = form.save(commit=False)
-            food.user = request.user
+
+            admin_user = User.objects.filter(is_superuser=True).first()
+            staff_users = User.objects.filter(is_staff=True)
+
+            if (admin_user) and (request.user in staff_users):
+                food.user = admin_user
+            else:
+                food.user = request.user
+
             food.save()
 
             Activities.objects.create(

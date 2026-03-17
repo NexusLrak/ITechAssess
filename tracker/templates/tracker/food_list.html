@@ -6,7 +6,7 @@
 
     <section class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <h1 class="h3 mb-0">Foods</h1>
-        <button class="btn btn-primary btn-sm" type="button" onclick="openModal('add/')">Add Food</button>
+        <button class="btn btn-primary btn-sm" type="button" onclick="openModal('{% url 'food_create' %}')">Add Food</button>
     </section>
 
     <div class="card shadow-sm border-0">
@@ -37,18 +37,28 @@
                             <td class="text-center">{{ food.carbohydrates }}</td>
                             <td class="text-center">{{ food.fiber }}</td>
                             <td class="text-end">
-                                {% if food.user == request.user %}
-                                    <button class="btn btn-primary btn-sm" type="button"
-                                        onclick="openModal('{% url 'food_edit' food.pk %}')">Edit</button>
-                                    <button class="btn btn-danger btn-sm" type="button"
-                                        onclick="openModal('{% url 'food_delete' food.pk %}')">Delete</button>
-                                {% elif food.user.is_staff %}
-                                    <button class="btn btn-primary btn-sm" type="button"
-                                        onclick="openModal('{% url 'food_adopt' food.pk %}')">Adopt</button>
-                                    <button class="btn btn-danger btn-sm" type="button"
-                                        onclick="openModal('{% url 'food_delete_admin' food.pk %}')">Delete</button>
+                                {% if request.user.is_staff %}
+                                    {% if food.user.is_superuser %}
+                                        <button class="btn btn-primary btn-sm" type="button"
+                                            onclick="openModal('{% url 'food_edit_admin' food.pk %}')">Edit</button>
+                                        <button class="btn btn-danger btn-sm" type="button"
+                                            onclick="openModal('{% url 'food_delete_admin' food.pk %}')">Delete</button>
+                                    {% else %}
+                                        <button class="btn btn-primary btn-sm" type="button"
+                                            onclick="openModal('{% url 'food_adopt' food.pk %}')">Adopt</button>
+                                        <button class="btn btn-danger btn-sm" type="button"
+                                            onclick="openModal('{% url 'food_delete_admin' food.pk %}')">Delete</button>
+                                    {% endif %}
+
                                 {% else  %}
-                                    Common
+                                    {% if food.user == request.user %}
+                                        <button class="btn btn-primary btn-sm" type="button"
+                                            onclick="openModal('{% url 'food_edit' food.pk %}')">Edit</button>
+                                        <button class="btn btn-danger btn-sm" type="button"
+                                            onclick="openModal('{% url 'food_delete' food.pk %}')">Delete</button>
+                                    {% else %}
+                                        Common
+                                    {% endif %}
                                 {% endif %}
                             </td>
                         </tr>
