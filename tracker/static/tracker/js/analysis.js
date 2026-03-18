@@ -177,8 +177,8 @@ function buildPieSpec(filteredData, size) {
                         field: "macro",
                         type: "nominal",
                         scale: {
-                            domain: ["Protein", "Carbs", "Fat"],
-                            range: ["#d16b6b", "#6fa8dc", "#e5c07b"]
+                            domain: ["Protein", "Carbs", "Fat", "Fibre"],
+                            range: ["#d16b6b", "#6fa8dc", "#e5c07b", "#3ec04c"]
                         },
                         legend: {
                             title: "",
@@ -192,7 +192,7 @@ function buildPieSpec(filteredData, size) {
                     order: {
                         field: "macro",
                         type: "nominal",
-                        sort: ["Protein", "Carbs", "Fat"]
+                        sort: ["Protein", "Carbs", "Fat", "Fibre"]
                     },
                     tooltip: [
                         { field: "macro", type: "nominal", title: "Macro" },
@@ -219,7 +219,7 @@ function buildPieSpec(filteredData, size) {
                     order: {
                         field: "macro",
                         type: "nominal",
-                        sort: ["Protein", "Carbs", "Fat"]
+                        sort: ["Protein", "Carbs", "Fat", "Fibre"]
                     },
                     text: {
                         field: "labels",
@@ -361,8 +361,8 @@ function buildBarSpec(barData, size) {
                         field: "macro",
                         type: "nominal",
                         scale: {
-                            domain: ["Protein", "Carbs", "Fat"],
-                            range: ["#d16b6b", "#6fa8dc", "#e5c07b"]
+                            domain: ["Protein", "Carbs", "Fat", "Fibre"],
+                            range: ["#d16b6b", "#6fa8dc", "#e5c07b", "#3ec04c"]
                         },
                         legend: {
                             title: "",
